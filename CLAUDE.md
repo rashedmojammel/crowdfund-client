@@ -10,13 +10,14 @@ Read ARCHITECTURE.md for the full folder plan and business rules.
 - Credit rates: 10 credits = $1 (buy), 20 credits = $1 (withdraw).
 - Signup bonuses (50 supporter, 20 creator) are granted exactly once — server enforces.
 - All API calls to the server go through lib/api-client.ts (attaches JWT).
-- Use Tailwind CSS v4 + shadcn/ui components (New York style) for UI — richer blocks may come from the 21st.dev registry. Use motion for animations, Swiper for sliders, lucide-react for icons, sonner for toasts.
+- Use Tailwind CSS v4 + shadcn/ui components (New York style) for UI — richer blocks may come from the 21st.dev registry. Use motion for all animation (including sliders/carousels — built on motion or plain CSS, not Swiper), lucide-react for icons, sonner for toasts.
 - Every state change on the server should trigger a notification for the affected user.
 
 ## Tech stack
 Next.js App Router, TypeScript, BetterAuth, Tailwind CSS v4 + shadcn/ui (+ 21st.dev
-registry), lucide-react, sonner, Framer Motion (motion), Swiper, TanStack Query,
-React Hook Form + Zod, Stripe.js, ImgBB for uploads.
+registry), lucide-react, sonner, Framer Motion (motion) for all animation and
+carousels/marquees, TanStack Query, React Hook Form + Zod, Stripe.js, ImgBB for
+uploads.
 
 ## Commit style
 Small, focused commits. Prefix with feat: / fix: / chore: / refactor:.
