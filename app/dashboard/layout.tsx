@@ -3,11 +3,12 @@
 // AUTH GUARD for the whole /dashboard tree. Waits for the persisted session
 // to hydrate before deciding anything — redirecting while hasHydrated is
 // false would bounce every reload back to /login (forbidden by CLAUDE.md).
-// DashboardSidebar / DashboardTopBar slot in here later.
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Loader } from "@gravity-ui/uikit";
+import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
+import { DashboardTopBar } from "@/components/layout/DashboardTopBar";
 import { useSessionStore } from "@/lib/store";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -29,5 +30,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-screen">
+      <DashboardSidebar />
+      <div className="flex min-w-0 grow flex-col">
+        <DashboardTopBar />
+        <main className="grow px-5 py-8 md:px-8">{children}</main>
+      </div>
+    </div>
+  );
 }
