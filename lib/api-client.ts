@@ -55,6 +55,7 @@ const routes: Array<[method: string, pattern: RegExp, handler: RouteHandler]> = 
   ["DELETE", /^\/users\/([^/]+)$/, (c) => mock.mockDeleteUser(c.params[0])],
 
   // Campaigns — literal segments before the [id] catch-alls
+  ["GET", /^\/campaigns\/all$/, () => mock.mockGetAllCampaigns()],
   ["GET", /^\/campaigns\/top-funded$/, () => mock.mockGetTopFunded()],
   ["GET", /^\/campaigns\/mine$/, (c) => mock.mockGetMyCampaigns(requireEmail(c))],
   ["PATCH", /^\/campaigns\/([^/]+)\/approve$/, (c) => mock.mockApproveCampaign(c.params[0])],

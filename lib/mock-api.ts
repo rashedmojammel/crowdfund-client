@@ -247,6 +247,14 @@ export async function mockGetCampaigns(filters: CampaignFilters = {}): Promise<C
   return result;
 }
 
+/** Admin: every campaign in every status, newest first. */
+export async function mockGetAllCampaigns(): Promise<Campaign[]> {
+  await delay();
+  return [...db.campaigns].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}
+
 /** Top 6 approved campaigns by amount raised — home page section. */
 export async function mockGetTopFunded(): Promise<Campaign[]> {
   await delay();
