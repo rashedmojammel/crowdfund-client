@@ -101,6 +101,19 @@ export interface Report {
   createdAt: string;
 }
 
+export type CheckoutSessionStatus = "pending" | "completed" | "cancelled";
+
+export interface CheckoutSession {
+  id: string;
+  supporterEmail: string;
+  credits: number;
+  amountUsd: number;
+  status: CheckoutSessionStatus;
+  /** Where the client should navigate to pay — Stripe-hosted URL in production. */
+  url: string;
+  createdAt: string;
+}
+
 export interface Payment {
   id: string;
   supporterEmail: string;

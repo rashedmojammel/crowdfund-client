@@ -22,6 +22,7 @@ import type {
   AuthResponse,
   Campaign,
   CampaignCategory,
+  CheckoutSession,
   Contribution,
   CreatorStats,
   Paginated,
@@ -109,6 +110,24 @@ const notifyAdmins = (message: string, actionRoute: string) => {
 export const getUserSnapshot = (email: string): User | null => {
   const user = findUser(email);
   return user ? sanitizeUser(user) : null;
+};
+
+// Sentinel that can never match a typed password — restored accounts can't
+// log in again after logout (their original password died with the reload).
+const RESTORED_SESSION_PASSWORD = "__restored-session__";
+
+/**
+ * The persisted Zustand session survives full page reloads, but this
+ * in-memory DB does not — accounts created via sign-up vanish, and every
+ * authenticated call would then 401 with "Not authenticated". Called by
+ * lib/api-client.ts before each request to re-insert the session's user
+ * (with their last known credits) if the reload wiped them. Seeded users
+ * are left untouched. Not part of the real API surface.
+ */
+export const restoreSessionUser = (user: User): void => {
+  if (!findUser(user.email)) {
+    db.users.push({ ...user, password: RESTORED_SESSION_PASSWORD });
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -596,36 +615,91 @@ export async function mockGetUnreadCount(email: string): Promise<{ count: number
 }
 
 // ---------------------------------------------------------------------------
-// Payments (credit purchase — Stripe is mocked as an instant success)
+// Payments — mirrors the Stripe Checkout architecture:
+// create session → redirect → webhook credits wallet (idempotent).
+// In mock mode /mock-checkout stands in for Stripe's hosted page and
+// mockConfirmCheckout stands in for the webhook.
 // ---------------------------------------------------------------------------
 
 const BUY_RATE = 10; // credits per $1
 
-export async function mockPurchaseCredits(
+const checkoutSessions: CheckoutSession[] = [];
+
+const findCheckoutSession = (sessionId: string): CheckoutSession => {
+  const session = checkoutSessions.find((s) => s.id === sessionId);
+  // Sessions live in memory only — a full page reload starts a fresh mock DB.
+  if (!session) throw new ApiError("Checkout session not found or expired", 404);
+  return session;
+};
+
+/** POST /payments — the real server creates a Stripe Checkout Session here. */
+export async function mockCreateCheckoutSession(
   email: string,
   input: { credits: number }
-): Promise<Payment> {
+): Promise<CheckoutSession> {
   await delay();
   const supporter = requireUser(email);
   if (!Number.isFinite(input.credits) || input.credits <= 0) {
     throw new ApiError("Credit amount must be positive");
   }
-  const payment: Payment = {
-    id: nextId("pay"),
+  const id = `cs_mock_${Math.random().toString(36).slice(2, 12)}`;
+  const session: CheckoutSession = {
+    id,
     supporterEmail: supporter.email,
     credits: input.credits,
     amountUsd: input.credits / BUY_RATE,
-    sessionId: `cs_mock_${Math.random().toString(36).slice(2, 12)}`,
+    status: "pending",
+    url: `/mock-checkout?session_id=${id}`, // Stripe-hosted URL in production
     createdAt: now(),
   };
-  supporter.credits += input.credits;
+  checkoutSessions.push(session);
+  return session;
+}
+
+export async function mockGetCheckoutSession(sessionId: string): Promise<CheckoutSession> {
+  await delay();
+  return findCheckoutSession(sessionId);
+}
+
+/**
+ * Stands in for the Stripe webhook: credits the wallet exactly once per
+ * session (idempotent by session id), records the payment, notifies.
+ */
+export async function mockConfirmCheckout(sessionId: string): Promise<Payment> {
+  await delay();
+  const session = findCheckoutSession(sessionId);
+  const existing = db.payments.find((p) => p.sessionId === sessionId);
+  if (session.status === "completed" && existing) return existing;
+  if (session.status === "cancelled") {
+    throw new ApiError("This checkout session was cancelled");
+  }
+  const supporter = requireUser(session.supporterEmail);
+  session.status = "completed";
+  supporter.credits += session.credits;
+  const payment: Payment = {
+    id: nextId("pay"),
+    supporterEmail: supporter.email,
+    credits: session.credits,
+    amountUsd: session.amountUsd,
+    sessionId: session.id,
+    createdAt: now(),
+  };
   db.payments.push(payment);
   notify(
     supporter.email,
-    `Payment received — ${input.credits} credits ($${payment.amountUsd.toFixed(2)}) added to your wallet.`,
+    `Payment received — ${session.credits} credits ($${session.amountUsd.toFixed(2)}) added to your wallet.`,
     "/dashboard/payment-history"
   );
   return payment;
+}
+
+export async function mockCancelCheckout(sessionId: string): Promise<CheckoutSession> {
+  await delay();
+  const session = findCheckoutSession(sessionId);
+  if (session.status === "pending") {
+    session.status = "cancelled";
+  }
+  return session;
 }
 
 export async function mockGetPaymentHistory(email: string): Promise<Payment[]> {

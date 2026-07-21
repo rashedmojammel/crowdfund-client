@@ -121,8 +121,12 @@ const routes: Array<[method: string, pattern: RegExp, handler: RouteHandler]> = 
   ["GET", /^\/notifications$/, (c) => mock.mockGetNotifications(requireEmail(c))],
   ["PATCH", /^\/notifications$/, (c) => mock.mockMarkNotificationsRead(requireEmail(c))],
 
-  // Payments
-  ["POST", /^\/payments$/, (c) => mock.mockPurchaseCredits(requireEmail(c), c.body)],
+  // Payments — Stripe Checkout shape: create session, confirm (webhook
+  // stand-in), cancel, then the generic history route.
+  ["GET", /^\/payments\/session$/, (c) => mock.mockGetCheckoutSession(c.query.get("session_id") ?? "")],
+  ["POST", /^\/payments\/confirm$/, (c) => mock.mockConfirmCheckout(c.body.sessionId)],
+  ["POST", /^\/payments\/cancel$/, (c) => mock.mockCancelCheckout(c.body.sessionId)],
+  ["POST", /^\/payments$/, (c) => mock.mockCreateCheckoutSession(requireEmail(c), c.body)],
   ["GET", /^\/payments$/, (c) => mock.mockGetPaymentHistory(requireEmail(c))],
 
   // Reports
@@ -148,7 +152,15 @@ const normalizePath = (path: string): { pathname: string; query: URLSearchParams
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
   const method = options.method ?? "GET";
   const { pathname, query } = normalizePath(path);
-  const email = useSessionStore.getState().user?.email ?? null;
+  const sessionUser = useSessionStore.getState().user;
+  const email = sessionUser?.email ?? null;
+
+  // A reload resets the in-memory mock DB but not the persisted session —
+  // re-insert the logged-in user if the reset dropped them (registered
+  // accounts aren't in the seed data).
+  if (sessionUser) {
+    mock.restoreSessionUser(sessionUser);
+  }
 
   const route = routes.find(([m, pattern]) => m === method && pattern.test(pathname));
   if (!route) {
