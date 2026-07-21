@@ -1,13 +1,12 @@
 "use client";
 
-import { Icon } from "@gravity-ui/uikit";
-import { Magnifier, Wallet, Rocket } from "@gravity-ui/icons";
+import { Rocket, Search, Wallet } from "lucide-react";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
 
 const steps = [
   {
-    icon: Magnifier,
+    icon: Search,
     title: "Discover a campaign",
     description:
       "Browse campaigns across six categories. Every one is reviewed and approved by our team before it can accept a single credit.",
@@ -28,10 +27,10 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" aria-labelledby="how-it-works-heading" className="container-page">
+    <section id="how-it-works" aria-labelledby="how-it-works-heading" className="container-fs">
       <FadeIn className="text-center">
         <h2 id="how-it-works-heading">How FundSpark works</h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm opacity-70">
+        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
           Three steps between a good idea and a funded one.
         </p>
       </FadeIn>
@@ -41,18 +40,18 @@ export function HowItWorks() {
           <StaggerItem key={step.title}>
             <div className="flex h-full flex-col items-center gap-4 rounded-xl p-6 text-center">
               <div className="relative">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--g-color-base-brand)] text-[var(--g-color-text-brand-contrast)]">
-                  <Icon data={step.icon} size={28} />
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <step.icon className="size-7" aria-hidden="true" />
                 </span>
                 <span
-                  className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--g-color-base-background)] text-xs font-semibold shadow-modal"
+                  className="shadow-modal absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-background text-xs font-semibold"
                   aria-hidden="true"
                 >
                   {index + 1}
                 </span>
               </div>
               <h4>{step.title}</h4>
-              <p className="text-sm opacity-70">{step.description}</p>
+              <p className="text-sm text-muted-foreground">{step.description}</p>
             </div>
           </StaggerItem>
         ))}

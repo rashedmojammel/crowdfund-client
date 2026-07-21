@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "@gravity-ui/uikit";
+import { CircleAlert } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
 import { apiFetch } from "@/lib/api-client";
@@ -15,20 +17,17 @@ export function TopFundedCampaigns() {
   });
 
   return (
-    <section aria-labelledby="top-funded-heading" className="container-page">
+    <section aria-labelledby="top-funded-heading" className="container-fs">
       <FadeIn>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 id="top-funded-heading">Top funded campaigns</h2>
-            <p className="mt-2 max-w-xl text-sm opacity-70">
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               The projects supporters are backing hardest right now — reviewed, live, and
               closing in on their goals.
             </p>
           </div>
-          <Link
-            href="/explore"
-            className="text-sm font-medium text-[var(--g-color-text-info)]"
-          >
+          <Link href="/explore" className="text-sm font-medium text-primary">
             View all campaigns →
           </Link>
         </div>
@@ -36,12 +35,16 @@ export function TopFundedCampaigns() {
 
       <div className="mt-8">
         {isError ? (
-          <Alert
-            theme="danger"
-            title="Couldn't load campaigns"
-            message="Something went wrong while fetching the top funded campaigns."
-            actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
-          />
+          <Alert variant="destructive">
+            <CircleAlert />
+            <AlertTitle>Couldn&rsquo;t load campaigns</AlertTitle>
+            <AlertDescription>
+              Something went wrong while fetching the top funded campaigns.
+              <Button variant="outline" size="sm" className="mt-2 w-fit" onClick={() => refetch()}>
+                Try again
+              </Button>
+            </AlertDescription>
+          </Alert>
         ) : (
           <CampaignGrid campaigns={data} isLoading={isPending} />
         )}

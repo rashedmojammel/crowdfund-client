@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Linkedin, Send } from "lucide-react";
+// import { Facebook, Linkedin, Send } from "lucide-react";
 
 const exploreLinks = [
   { href: "/explore", label: "All campaigns" },
@@ -15,11 +15,11 @@ const accountLinks = [
   { href: "/dashboard", label: "Dashboard" },
 ];
 
-const socialLinks = [
-  { href: "https://facebook.com/fundspark", label: "FundSpark on Facebook", icon: Facebook },
-  { href: "https://linkedin.com/company/fundspark", label: "FundSpark on LinkedIn", icon: Linkedin },
-  { href: "https://t.me/fundspark", label: "FundSpark on Telegram", icon: Send },
-];
+// const socialLinks = [
+//   { href: "https://facebook.com/fundspark", label: "FundSpark on Facebook", icon: Facebook },
+//   { href: "https://linkedin.com/company/fundspark", label: "FundSpark on LinkedIn", icon: Linkedin },
+//   { href: "https://t.me/fundspark", label: "FundSpark on Telegram", icon: Send },
+// ];
 
 export function Footer() {
   return (
@@ -35,7 +35,7 @@ export function Footer() {
             libraries.
           </p>
           <div className="mt-6 flex items-center gap-4">
-            {socialLinks.map(({ href, label, icon: SocialIcon }) => (
+            {/* {socialLinks.map(({ href, label, icon: SocialIcon }) => (
               <a
                 key={href}
                 href={href}
@@ -46,7 +46,7 @@ export function Footer() {
               >
                 <SocialIcon className="size-5" aria-hidden="true" />
               </a>
-            ))}
+            ))} */}
           </div>
         </div>
 

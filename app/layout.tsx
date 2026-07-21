@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -37,10 +38,14 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
       <body className="min-h-full flex flex-col">
+        {/* App Router manages <head> itself — beforeInteractive scripts must
+            be siblings of children, not nested in a hand-authored <head>,
+            or Next stops hoisting them and React warns about a raw script. */}
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
+
         <Providers>{children}</Providers>
       </body>
     </html>

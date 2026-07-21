@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
-import { Button } from "@gravity-ui/uikit";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import { Button } from "@/components/ui/button";
 import { SIGNATURE_EASE } from "@/components/animations/FadeIn";
 import { Pressable } from "@/components/animations/Pressable";
 import { BLUR_DATA_URL } from "@/lib/constants";
@@ -73,7 +74,7 @@ export function HeroSlider() {
               <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
 
               <motion.div
-                className="container-page relative text-white"
+                className="container-fs relative text-white"
                 initial={false}
                 animate={
                   activeIndex === index
@@ -89,12 +90,17 @@ export function HeroSlider() {
                   <p className="mt-4 max-w-xl text-base opacity-90">{slide.subtitle}</p>
                   <div className="mt-8 flex flex-wrap items-center gap-3">
                     <Pressable>
-                      <Button view="action" size="xl" href={slide.cta.href}>
-                        {slide.cta.label}
+                      <Button size="lg" asChild>
+                        <Link href={slide.cta.href}>{slide.cta.label}</Link>
                       </Button>
                     </Pressable>
-                    <Button view="outlined-contrast" size="xl" href={slide.secondary.href}>
-                      {slide.secondary.label}
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-white/60 bg-transparent text-white hover:bg-white/10 hover:text-white"
+                      asChild
+                    >
+                      <Link href={slide.secondary.href}>{slide.secondary.label}</Link>
                     </Button>
                   </div>
                 </div>

@@ -13,14 +13,11 @@ const stats = [
 
 export function PlatformImpact() {
   return (
-    <section
-      aria-labelledby="impact-heading"
-      className="bg-[var(--g-color-base-generic)] py-12 md:py-16"
-    >
-      <div className="container-page">
+    <section aria-labelledby="impact-heading" className="bg-muted py-12 md:py-16">
+      <div className="container-fs">
         <FadeIn className="text-center">
           <h2 id="impact-heading">What we&rsquo;ve funded together</h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm opacity-70">
+          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
             Real numbers from real campaigns — updated as every contribution is approved.
           </p>
         </FadeIn>
@@ -32,9 +29,9 @@ export function PlatformImpact() {
                 <CountUp
                   value={stat.value}
                   suffix={stat.suffix}
-                  className="text-[32px] font-bold leading-[1.25] text-[var(--g-color-text-brand)]"
+                  className="text-[32px] font-bold leading-[1.25] text-primary"
                 />
-                <span className="text-sm opacity-70">{stat.label}</span>
+                <span className="text-sm text-muted-foreground">{stat.label}</span>
               </div>
             </StaggerItem>
           ))}

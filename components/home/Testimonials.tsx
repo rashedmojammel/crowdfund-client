@@ -1,11 +1,19 @@
 "use client";
 
 import { useReducedMotion } from "motion/react";
-import { Avatar } from "@gravity-ui/uikit";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FadeIn } from "@/components/animations/FadeIn";
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 const testimonials = [
   {
@@ -49,10 +57,10 @@ export function Testimonials() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section aria-labelledby="testimonials-heading" className="container-page">
+    <section aria-labelledby="testimonials-heading" className="container-fs">
       <FadeIn className="text-center">
         <h2 id="testimonials-heading">What our community says</h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm opacity-70">
+        <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
           Supporters and creators on what funding through FundSpark feels like.
         </p>
       </FadeIn>
@@ -71,15 +79,18 @@ export function Testimonials() {
         >
           {testimonials.map((t) => (
             <SwiperSlide key={t.name} className="h-auto">
-              <figure className="card-elevate flex h-full flex-col gap-4 rounded-xl bg-[var(--g-color-base-float)] p-6">
-                <blockquote className="grow text-sm leading-relaxed opacity-90">
+              <figure className="card-elevate flex h-full flex-col gap-4 rounded-xl bg-card p-6">
+                <blockquote className="grow text-sm leading-relaxed text-foreground/90">
                   &ldquo;{t.quote}&rdquo;
                 </blockquote>
                 <figcaption className="flex items-center gap-3">
-                  <Avatar imgUrl={t.image} text={t.name} size="l" aria-label={t.name} />
+                  <Avatar aria-label={t.name}>
+                    <AvatarImage src={t.image} alt="" />
+                    <AvatarFallback>{initials(t.name)}</AvatarFallback>
+                  </Avatar>
                   <div>
                     <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-sm opacity-60">{t.role}</p>
+                    <p className="text-sm text-muted-foreground">{t.role}</p>
                   </div>
                 </figcaption>
               </figure>
