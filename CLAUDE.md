@@ -30,15 +30,16 @@ Every component, page, and screen you build must follow these rules. No exceptio
 
 - **Design system:** Tailwind CSS v4 + shadcn/ui (New York style, `components/ui/`) is the source of truth for buttons, inputs, modals, tables, and typography. Use shadcn primitives (or 21st.dev registry blocks) before reaching for custom ones. Icons come from lucide-react; toasts from sonner.
 - **Colors:** Use the FundSpark tokens through Tailwind's semantic classes (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-card`, `bg-primary`, `text-destructive`, …) which map to the `--fs-*` variables in globals.css. Never hardcode hex values in components — new swatches go into the `--fs-*` palette first.
-- **Accent color:** The warm coral `--fs-accent` is `primary`. Use the default shadcn `<Button>` variant for primary CTAs. Never invent brand colors inline.
+- **Accent color:** The warm coral `--fs-accent` is `primary` — used for text, icons, and borders (bright enough for AA contrast against its own theme's background). Solid fills with text/icons on top (buttons, badges) use the separate `bg-primary-solid` / `bg-destructive-solid` tokens instead, tuned specifically for AA contrast under white text — see the contrast audit in MIGRATION.md for why the two can't share one value in dark mode. Use the default shadcn `<Button>` variant for primary CTAs. Never invent brand colors inline.
 - **Dark mode:** Toggled by adding/removing the `.dark` class on `<html>` (persisted in `localStorage("fundspark-theme")` via `hooks/useTheme.ts`) — NOT a data-theme attribute. Every component must look right in both themes.
 - **Fonts:** Inter (`--font-sans`) for UI and body, Fraunces (`--font-display`) for h1/display headlines — both loaded via next/font.
 - **Spacing:** Use a 4px base unit — 4, 8, 12, 16, 24, 32, 48, 64. No arbitrary values like 13px or 27px.
-- **Border radius:** Cards and modals use `border-radius: 12px`. Inputs use `border-radius: 8px`. Buttons use Gravity UI defaults.
-- **Shadows:** Use one of three levels only:
-  - Cards at rest: `box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)`
-  - Cards on hover: `box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06)`
-  - Modals and popovers: `box-shadow: 0 12px 32px rgba(0,0,0,0.16)`
+- **Border radius:** Cards and modals use `rounded-xl` (12px). Inputs use `rounded-lg`/`rounded-md` (shadcn defaults). Buttons use shadcn defaults.
+- **Shadows:** Use native Tailwind utilities, one of three levels only:
+  - Cards at rest: `shadow-sm`
+  - Cards on hover: `hover:shadow-md` (with `transition-shadow`)
+  - Floating surfaces — modals, dropdowns, popovers, the mobile drawer: `shadow-xl`
+  - Don't reach for arbitrary `box-shadow` values or the legacy `card-elevate`/`shadow-modal`/`shadow-card` CSS classes — those only remain for files still on the Gravity migration backlog (MIGRATION.md) and get deleted once that clears.
 - **Typography scale:** h1 = 40px/1.2, h2 = 32px/1.25, h3 = 24px/1.3, h4 = 20px/1.4, body = 16px/1.6, caption = 14px/1.5. Weights: 700 for headings, 600 for buttons and card titles, 500 for labels, 400 for body.
 - **Content density:** Cards get 24px internal padding on desktop, 16px on mobile. Section vertical rhythm is 96px desktop / 64px tablet / 48px mobile between major sections.
 
@@ -94,7 +95,7 @@ Every component, page, and screen you build must follow these rules. No exceptio
 ### Accessibility
 
 - **Keyboard nav:** Every interactive element must be reachable and usable via Tab / Enter / Space / Escape.
-- **Focus rings:** Visible focus indicators on all interactive elements. Never `outline: none` without a replacement.
+- **Focus rings:** Visible focus indicators on all interactive elements. Never `outline: none` without a replacement. shadcn primitives (Button, Input, Select, …) already ship their own `focus-visible:ring-[3px] focus-visible:ring-ring/50` treatment — leave those alone. Any hand-rolled `<Link>`/`<button>` that isn't wrapped in a shadcn component must get the shared `FOCUS_RING` constant from `lib/utils.ts` (`ring-2 ring-ring ring-offset-2`).
 - **Contrast:** All text must pass WCAG AA (4.5:1 for body, 3:1 for large text).
 - **ARIA:** Modals get `role="dialog"` and `aria-labelledby`. Toasts get `role="status"`. Buttons that only show icons get `aria-label`.
 
