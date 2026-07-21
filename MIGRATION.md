@@ -89,3 +89,17 @@ when done.
 - [ ] app/dashboard/reports/page.tsx
 
 Total: 66 files.
+
+## Foundation sanity check — passed (pre-migration)
+
+Verified on a fresh dev server via a temporary self-contained route
+(`/migration-test`, since every existing page still imports Gravity):
+
+- Tailwind v4 tokens compile: `bg-primary` renders the warm coral
+  (`#e85d3a` present in compiled CSS)
+- `--fs-*` palette, `.dark` variant, `.container-fs`, and `--font-fraunces`
+  all present in compiled CSS
+- No-flash theme script served in `<head>`; dark mode = `.dark` on `<html>`
+- Zero `@gravity-ui` module errors for routes that don't import it
+- 22 shadcn primitives in `components/ui/` (toast retired upstream —
+  sonner replaces it)

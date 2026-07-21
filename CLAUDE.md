@@ -63,7 +63,7 @@ Every component, page, and screen you build must follow these rules. No exceptio
 
 ### Loading and empty states
 
-- **Never show a blank page while loading.** Every route with data uses a skeleton loader that matches the final layout's shape. Skeletons pulse via a `@keyframes` opacity animation between 0.4 and 0.7 over 1.5s.
+- **Never show a blank page while loading.** Every route with data uses a skeleton loader that matches the final layout's shape. Use the shadcn `<Skeleton>` (`components/ui/skeleton.tsx`) sized via className to the final content's dimensions.
 - **Never show "No data" without design.** Empty states get an illustration or large icon, a heading ("No campaigns yet"), a helpful subtitle explaining what to do, and a CTA button when there's an obvious next action.
 - **Optimistic UI:** For contribution submission, form saves, and toggles, update the UI immediately and roll back on error. Show a `react-hot-toast` success or error toast to confirm.
 
