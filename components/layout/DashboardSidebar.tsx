@@ -31,7 +31,7 @@ export function DashboardSidebar() {
             className={cn("flex items-center gap-2 overflow-hidden text-xl font-bold", FOCUS_RING)}
             aria-label="FundSpark home"
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm text-primary-foreground">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-solid text-sm text-primary-foreground">
               F
             </span>
             {!collapsed ? (

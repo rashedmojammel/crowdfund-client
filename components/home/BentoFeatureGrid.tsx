@@ -53,7 +53,7 @@ export function BentoFeatureGrid() {
             <div
               className={cn(
                 "relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-2xl border p-6 shadow-sm transition-shadow hover:shadow-md md:p-8",
-                step.accent ? "bg-primary text-primary-foreground" : "bg-card"
+                step.accent ? "bg-primary-solid text-primary-foreground" : "bg-card"
               )}
             >
               {/* Decorative corner glow — purely visual, no content. */}
@@ -67,7 +67,7 @@ export function BentoFeatureGrid() {
               <span
                 className={cn(
                   "relative flex size-12 items-center justify-center rounded-xl",
-                  step.accent ? "bg-white/15" : "bg-primary text-primary-foreground"
+                  step.accent ? "bg-white/15" : "bg-primary-solid text-primary-foreground"
                 )}
               >
                 <step.icon className="size-6" aria-hidden="true" />

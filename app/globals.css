@@ -12,6 +12,12 @@
   --color-popover-foreground: var(--fs-text);
   --color-primary: var(--fs-accent);
   --color-primary-foreground: #ffffff;
+  /* Dedicated solid-fill tokens for buttons/badges (white text on top) —
+     kept separate from --fs-accent/--fs-danger because dark mode needs a
+     brighter accent for text-on-dark-bg but a darker one behind white
+     button text; see the contrast audit in MIGRATION.md. */
+  --color-primary-solid: var(--fs-accent-solid);
+  --color-destructive-solid: var(--fs-danger-solid);
   --color-secondary: var(--fs-bg-subtle);
   --color-secondary-foreground: var(--fs-text);
   --color-muted: var(--fs-bg-subtle);
@@ -38,13 +44,20 @@
   --fs-border-strong: #d6d0c2;
   --fs-text: #1a1a1a;
   --fs-text-secondary: #5c5a54;
-  --fs-text-muted: #8a8780;
+  /* Contrast audit: #8a8780 was 3.4:1 on card/bg, failing AA-normal (4.5:1). */
+  --fs-text-muted: #6a6862;
   --fs-accent: #e85d3a;
   --fs-accent-hover: #d14a29;
   --fs-accent-subtle: #fbede8;
+  /* Contrast audit: #e85d3a as text/border was 3.3:1 on bg — darkened so it
+     passes both as text and as a button/badge background under white text.
+     Buttons/badges use --fs-accent-solid too; in light mode the values
+     coincide since darker works for both roles here (unlike dark mode). */
+  --fs-accent-solid: #cb3c18;
   --fs-success: #2f855a;
   --fs-warning: #c05621;
   --fs-danger: #c53030;
+  --fs-danger-solid: #c53030;
   --fs-focus-ring: rgba(232, 93, 58, 0.5);
 }
 
@@ -56,13 +69,20 @@
   --fs-border-strong: #45423b;
   --fs-text: #f5f2ea;
   --fs-text-secondary: #b8b4a8;
-  --fs-text-muted: #7a776f;
+  /* Contrast audit: #7a776f was 4.2:1 on bg / 3.9:1 on card, failing AA-normal. */
+  --fs-text-muted: #a5a39c;
   --fs-accent: #f27a5a;
   --fs-accent-hover: #e85d3a;
   --fs-accent-subtle: rgba(242, 122, 90, 0.14);
+  /* Contrast audit: white text on the bright dark-mode --fs-accent was only
+     2.72:1 (illegible). --fs-accent itself stays bright for text-on-dark-bg
+     use; buttons/badges use this darker value instead. */
+  --fs-accent-solid: #cb3710;
   --fs-success: #48bb78;
   --fs-warning: #ed8936;
   --fs-danger: #fc8181;
+  /* Contrast audit: white text on --fs-danger was 2.44:1 (illegible). */
+  --fs-danger-solid: #df0505;
   --fs-focus-ring: rgba(242, 122, 90, 0.55);
 }
 

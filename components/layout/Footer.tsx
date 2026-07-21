@@ -34,7 +34,7 @@ export function Footer() {
       <div className="container-fs grid gap-10 py-16 md:grid-cols-4 md:gap-8">
         <div className="md:col-span-2">
           <Link href="/" className={cn("flex w-fit items-center gap-2 text-xl font-bold", FOCUS_RING)}>
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm text-primary-foreground">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary-solid text-sm text-primary-foreground">
               F
             </span>
             Fund<span className="text-primary">Spark</span>
