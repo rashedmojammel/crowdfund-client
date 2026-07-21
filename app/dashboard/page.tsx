@@ -1,9 +1,10 @@
 "use client";
 
-// Role-aware dashboard home dispatcher. CreatorHome and AdminHome replace
-// the placeholder branches as those flows are built.
+// Role-aware dashboard home dispatcher. AdminHome replaces the placeholder
+// branch when the admin flow is built.
 
 import { FadeIn } from "@/components/animations/FadeIn";
+import { CreatorHome } from "@/components/dashboard/creator/CreatorHome";
 import { SupporterHome } from "@/components/dashboard/supporter/SupporterHome";
 import { formatCredits } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
@@ -14,6 +15,10 @@ export default function DashboardHomePage() {
 
   if (user.role === "supporter") {
     return <SupporterHome />;
+  }
+
+  if (user.role === "creator") {
+    return <CreatorHome />;
   }
 
   return (
