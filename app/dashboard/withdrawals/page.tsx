@@ -8,7 +8,7 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { WithdrawalForm } from "@/components/dashboard/creator/WithdrawalForm";
 import { WithdrawalHistoryTable } from "@/components/dashboard/creator/WithdrawalHistoryTable";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatUsd } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";

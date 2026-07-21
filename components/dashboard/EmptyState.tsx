@@ -1,10 +1,13 @@
 "use client";
 
-import type { ReactNode } from "react";
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  // Accepts lucide-react icons and the still-Gravity call sites' icon
+  // components (@gravity-ui/icons) until MIGRATION.md's backlog clears —
+  // both are plain SVG-rendering components, just with different exact
+  // types upstream.
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   title: string;
   subtitle: string;
   /** Optional CTA — rendered under the subtitle when there's an obvious next action. */
