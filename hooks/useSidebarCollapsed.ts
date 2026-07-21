@@ -1,35 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+// Persisted icon-only/expanded toggle for the desktop dashboard sidebar.
+// Uses useSyncExternalStore so the SSR-unsafe localStorage read doesn't
+// need a setState-in-effect (React manages the safe server/client
+// snapshot split itself — see hooks/useTheme.ts for the same pattern).
+
+import { useCallback, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "fundspark-sidebar-collapsed";
+const CHANGE_EVENT = "fundspark-sidebar-collapsed-change";
 
-/** Persisted icon-only/expanded toggle for the desktop dashboard sidebar. */
+const readCollapsed = (): boolean => {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+};
+
+const subscribe = (onStoreChange: () => void) => {
+  window.addEventListener(CHANGE_EVENT, onStoreChange);
+  return () => window.removeEventListener(CHANGE_EVENT, onStoreChange);
+};
+
+// Server has no localStorage — report expanded so SSR matches the full sidebar.
+const getServerSnapshot = () => false;
+
 export function useSidebarCollapsed() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const collapsed = useSyncExternalStore(subscribe, readCollapsed, getServerSnapshot);
 
-  useEffect(() => {
-    setMounted(true);
+  const toggle = useCallback(() => {
+    const next = !readCollapsed();
     try {
-      setCollapsed(localStorage.getItem(STORAGE_KEY) === "true");
+      localStorage.setItem(STORAGE_KEY, String(next));
     } catch {
-      // localStorage unavailable — default to expanded for the session
+      // ignore
     }
+    window.dispatchEvent(new Event(CHANGE_EVENT));
   }, []);
 
-  const toggle = () => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(STORAGE_KEY, String(next));
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  };
-
-  // Report expanded until mounted so SSR/first paint matches the full sidebar.
-  return { collapsed: mounted && collapsed, toggle, mounted };
+  return { collapsed, toggle };
 }
