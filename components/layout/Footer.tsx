@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Linkedin, Send } from "lucide-react";
+import { FacebookIcon, LinkedinIcon, TelegramIcon } from "@/components/layout/social-icons";
 
 const exploreLinks = [
   { href: "/explore", label: "All campaigns" },
@@ -16,9 +16,9 @@ const accountLinks = [
 ];
 
 const socialLinks = [
-  { href: "https://facebook.com/fundspark", label: "FundSpark on Facebook", icon: Facebook },
-  { href: "https://linkedin.com/company/fundspark", label: "FundSpark on LinkedIn", icon: Linkedin },
-  { href: "https://t.me/fundspark", label: "FundSpark on Telegram", icon: Send },
+  { href: "https://facebook.com/fundspark", label: "FundSpark on Facebook", icon: FacebookIcon },
+  { href: "https://linkedin.com/company/fundspark", label: "FundSpark on LinkedIn", icon: LinkedinIcon },
+  { href: "https://t.me/fundspark", label: "FundSpark on Telegram", icon: TelegramIcon },
 ];
 
 export function Footer() {
