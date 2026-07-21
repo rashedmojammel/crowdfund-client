@@ -1,8 +1,9 @@
 "use client";
 
-import { Label } from "@gravity-ui/uikit";
+import { Badge } from "@/components/ui/badge";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { RoleBadge } from "@/components/dashboard/RoleBadge";
 import { formatNumber } from "@/lib/format";
@@ -14,7 +15,7 @@ export function DashboardTopBar() {
   if (!user) return null;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--g-color-line-generic)] bg-[var(--g-color-base-background)]">
+    <header className="sticky top-0 z-30 border-b bg-background">
       <div className="flex h-16 items-center justify-between gap-4 px-5 md:px-8">
         <div className="flex items-center gap-3">
           <MobileNav />
@@ -24,10 +25,14 @@ export function DashboardTopBar() {
 
         <div className="flex items-center gap-3">
           <span title="Available credits">
-            <Label theme="success" size="m">
+            <Badge
+              variant="outline"
+              className="border-[var(--fs-success)]/40 text-[var(--fs-success)]"
+            >
               {formatNumber(user.credits)} credits
-            </Label>
+            </Badge>
           </span>
+          <ThemeToggle />
           <NotificationBell />
           <UserMenu />
         </div>
