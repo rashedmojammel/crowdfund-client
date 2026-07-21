@@ -1,9 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Button, Icon, Label, Skeleton } from "@gravity-ui/uikit";
-import { Calendar, Gift, Person } from "@gravity-ui/icons";
+import { Calendar, Gift, TriangleAlert, User } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge";
 import { ContributeForm } from "@/components/campaigns/ContributeForm";
@@ -41,7 +45,7 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
 
   if (isPending) {
     return (
-      <div className="container-page py-12">
+      <div className="container-fs py-12">
         <DetailsSkeleton />
       </div>
     );
@@ -49,15 +53,17 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
 
   if (isError || !campaign) {
     return (
-      <div className="container-page py-12">
-        <Alert
-          theme="danger"
-          title="Campaign not found"
-          message="This campaign may have been removed, or the link is incorrect."
-          actions={
-            <Alert.Action href="/explore">Browse live campaigns</Alert.Action>
-          }
-        />
+      <div className="container-fs py-12">
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertTitle>Campaign not found</AlertTitle>
+          <AlertDescription>
+            This campaign may have been removed, or the link is incorrect.
+            <Button size="sm" className="mt-2 w-fit" asChild>
+              <Link href="/explore">Browse live campaigns</Link>
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -69,25 +75,27 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
   const remaining = daysLeft(campaign.deadline);
 
   return (
-    <div className="container-page py-12">
+    <div className="container-fs py-12">
       <FadeIn>
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           {/* Main column */}
           <article className="flex flex-col gap-6">
             <div className="flex flex-wrap items-center gap-2">
-              <Label theme="normal">{campaign.category}</Label>
+              <Badge variant="secondary" className="capitalize">
+                {campaign.category}
+              </Badge>
               <CampaignStatusBadge status={campaign.status} />
             </div>
 
             <div>
               <h1 className="text-balance">{campaign.title}</h1>
-              <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm opacity-70">
+              <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
-                  <Icon data={Person} size={16} />
+                  <User className="size-4" aria-hidden="true" />
                   {campaign.creatorName}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Icon data={Calendar} size={16} />
+                  <Calendar className="size-4" aria-hidden="true" />
                   Started {formatDate(campaign.createdAt)}
                 </span>
               </p>
@@ -108,51 +116,53 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
 
             <section aria-labelledby="story-heading">
               <h3 id="story-heading">About this campaign</h3>
-              <p className="mt-4 whitespace-pre-line leading-relaxed opacity-90">
+              <p className="mt-4 whitespace-pre-line leading-relaxed text-foreground/90">
                 {campaign.story}
               </p>
             </section>
 
             <section
               aria-labelledby="reward-heading"
-              className="rounded-xl bg-[var(--g-color-base-generic)] p-4 md:p-6"
+              className="rounded-xl bg-muted p-4 md:p-6"
             >
               <h4 id="reward-heading" className="flex items-center gap-2">
-                <Icon data={Gift} size={20} />
+                <Gift className="size-5" aria-hidden="true" />
                 Backer reward
               </h4>
-              <p className="mt-3 text-sm leading-relaxed opacity-90">{campaign.reward}</p>
+              <p className="mt-3 text-sm leading-relaxed text-foreground/90">
+                {campaign.reward}
+              </p>
             </section>
           </article>
 
           {/* Sidebar */}
           <aside className="flex flex-col gap-6 self-start lg:sticky lg:top-24">
-            <div className="card-elevate flex flex-col gap-4 rounded-xl bg-[var(--g-color-base-float)] p-4 md:p-6">
+            <div className="card-elevate flex flex-col gap-4 rounded-xl bg-card p-4 md:p-6">
               <ProgressBar raised={campaign.amount_raised} goal={campaign.funding_goal} />
               <div>
                 <p className="text-[24px] font-bold leading-[1.3]">
                   {formatCredits(campaign.amount_raised)}
                 </p>
-                <p className="mt-1 text-sm opacity-70">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {percent}% of {formatNumber(campaign.funding_goal)}-credit goal
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-sm opacity-70">
-                <Icon data={Calendar} size={16} />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="size-4" aria-hidden="true" />
                 {remaining > 0
                   ? `Ends ${formatDate(campaign.deadline)} — ${remaining} day${remaining === 1 ? "" : "s"} left`
                   : `Ended ${formatDate(campaign.deadline)}`}
               </div>
             </div>
 
-            <div className="card-elevate rounded-xl bg-[var(--g-color-base-float)] p-4 md:p-6">
+            <div className="card-elevate rounded-xl bg-card p-4 md:p-6">
               <ContributeForm campaign={campaign} />
             </div>
 
             <ReportCampaignButton campaign={campaign} />
 
-            <Button view="flat" size="m" href="/explore">
-              ← Back to all campaigns
+            <Button variant="ghost" asChild>
+              <Link href="/explore">← Back to all campaigns</Link>
             </Button>
           </aside>
         </div>

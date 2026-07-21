@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Skeleton } from "@gravity-ui/uikit";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import type { Campaign } from "@/types";
@@ -9,8 +9,8 @@ import type { Campaign } from "@/types";
 /** Card-shaped skeleton so grids don't shift when data arrives. */
 export function CampaignCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl bg-[var(--g-color-base-float)]">
-      <Skeleton className="aspect-video w-full" />
+    <div className="overflow-hidden rounded-xl bg-card">
+      <Skeleton className="aspect-video w-full rounded-none" />
       <div className="flex flex-col gap-3 p-4 md:p-6">
         <Skeleton className="h-6 w-4/5" />
         <Skeleton className="h-4 w-2/5" />

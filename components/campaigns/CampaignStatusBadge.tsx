@@ -1,13 +1,14 @@
 "use client";
 
-import { Label } from "@gravity-ui/uikit";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { CampaignStatus } from "@/types";
 
-const statusTheme: Record<CampaignStatus, "warning" | "success" | "danger" | "utility"> = {
-  pending: "warning",
-  approved: "success",
-  rejected: "danger",
-  suspended: "utility",
+const statusClass: Record<CampaignStatus, string> = {
+  pending: "border-transparent bg-[var(--fs-warning)] text-white",
+  approved: "border-transparent bg-[var(--fs-success)] text-white",
+  rejected: "border-transparent bg-destructive text-white",
+  suspended: "border-transparent bg-muted-foreground text-white",
 };
 
 const statusText: Record<CampaignStatus, string> = {
@@ -18,5 +19,5 @@ const statusText: Record<CampaignStatus, string> = {
 };
 
 export function CampaignStatusBadge({ status }: { status: CampaignStatus }) {
-  return <Label theme={statusTheme[status]}>{statusText[status]}</Label>;
+  return <Badge className={cn(statusClass[status])}>{statusText[status]}</Badge>;
 }

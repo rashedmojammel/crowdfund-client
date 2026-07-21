@@ -1,6 +1,15 @@
 "use client";
 
-import { Button, Select, TextInput } from "@gravity-ui/uikit";
+import { Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CATEGORIES } from "@/lib/constants";
 
 export interface ExploreFilters {
@@ -24,6 +33,10 @@ interface CampaignFiltersProps {
   onChange: (next: ExploreFilters) => void;
 }
 
+// Radix Select doesn't allow an empty-string item value, so "any/all" options
+// use this sentinel and get mapped back to "" at the boundary.
+const ANY = "__any__";
+
 /** Category / deadline / goal filters + search. No animation — filters are instant. */
 export function CampaignFilters({ value, onChange }: CampaignFiltersProps) {
   const set = <K extends keyof ExploreFilters>(key: K, v: ExploreFilters[K]) =>
@@ -34,55 +47,71 @@ export function CampaignFilters({ value, onChange }: CampaignFiltersProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="w-full sm:w-64">
-        <TextInput
-          size="l"
+      <div className="relative w-full sm:w-64">
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <Input
           type="search"
           placeholder="Search campaigns"
           value={value.search}
-          onUpdate={(v) => set("search", v)}
-          hasClear
+          onChange={(e) => set("search", e.target.value)}
+          className="pl-9"
         />
       </div>
 
       <Select
-        size="l"
-        placeholder="All categories"
-        value={value.category ? [value.category] : []}
-        onUpdate={(v) => set("category", v[0] ?? "")}
-        options={[
-          { value: "", content: "All categories" },
-          ...CATEGORIES.map((c) => ({ value: c.value, content: c.label })),
-        ]}
-      />
+        value={value.category || ANY}
+        onValueChange={(v) => set("category", v === ANY ? "" : v)}
+      >
+        <SelectTrigger className="w-full sm:w-44">
+          <SelectValue placeholder="All categories" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ANY}>All categories</SelectItem>
+          {CATEGORIES.map((c) => (
+            <SelectItem key={c.value} value={c.value}>
+              {c.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <Select
-        size="l"
-        placeholder="Any deadline"
-        value={value.deadline ? [value.deadline] : []}
-        onUpdate={(v) => set("deadline", (v[0] ?? "") as ExploreFilters["deadline"])}
-        options={[
-          { value: "", content: "Any deadline" },
-          { value: "30", content: "Ending within 30 days" },
-          { value: "90", content: "Ending within 90 days" },
-        ]}
-      />
+        value={value.deadline || ANY}
+        onValueChange={(v) =>
+          set("deadline", v === ANY ? "" : (v as ExploreFilters["deadline"]))
+        }
+      >
+        <SelectTrigger className="w-full sm:w-48">
+          <SelectValue placeholder="Any deadline" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ANY}>Any deadline</SelectItem>
+          <SelectItem value="30">Ending within 30 days</SelectItem>
+          <SelectItem value="90">Ending within 90 days</SelectItem>
+        </SelectContent>
+      </Select>
 
       <Select
-        size="l"
-        placeholder="Any goal size"
-        value={value.goal ? [value.goal] : []}
-        onUpdate={(v) => set("goal", (v[0] ?? "") as ExploreFilters["goal"])}
-        options={[
-          { value: "", content: "Any goal size" },
-          { value: "under-50k", content: "Under 50,000 credits" },
-          { value: "50k-100k", content: "50,000 – 100,000 credits" },
-          { value: "over-100k", content: "Over 100,000 credits" },
-        ]}
-      />
+        value={value.goal || ANY}
+        onValueChange={(v) => set("goal", v === ANY ? "" : (v as ExploreFilters["goal"]))}
+      >
+        <SelectTrigger className="w-full sm:w-52">
+          <SelectValue placeholder="Any goal size" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ANY}>Any goal size</SelectItem>
+          <SelectItem value="under-50k">Under 50,000 credits</SelectItem>
+          <SelectItem value="50k-100k">50,000 – 100,000 credits</SelectItem>
+          <SelectItem value="over-100k">Over 100,000 credits</SelectItem>
+        </SelectContent>
+      </Select>
 
       {hasActiveFilters ? (
-        <Button size="l" view="flat" onClick={() => onChange(EMPTY_FILTERS)}>
+        <Button variant="ghost" onClick={() => onChange(EMPTY_FILTERS)}>
+          <X aria-hidden="true" />
           Clear filters
         </Button>
       ) : null}

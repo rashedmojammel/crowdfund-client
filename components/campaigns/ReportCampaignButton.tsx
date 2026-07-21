@@ -4,8 +4,24 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Button, Dialog, Icon, Select, TextArea } from "@gravity-ui/uikit";
-import { Flag } from "@gravity-ui/icons";
+import { CircleCheck, Flag, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/forms/FormField";
 import { apiFetch } from "@/lib/api-client";
 import { useSessionStore } from "@/lib/store";
@@ -63,49 +79,76 @@ export function ReportCampaignButton({ campaign }: ReportCampaignButtonProps) {
 
   return (
     <>
-      <Button view="flat-danger" size="m" width="max" onClick={() => setOpen(true)}>
-        <span className="flex items-center gap-2">
-          <Icon data={Flag} size={14} />
-          Report this campaign
-        </span>
+      <Button
+        variant="ghost"
+        className="w-full text-destructive hover:text-destructive"
+        onClick={() => setOpen(true)}
+      >
+        <Flag aria-hidden="true" />
+        Report this campaign
       </Button>
 
-      <Dialog open={open} onClose={close} size="s">
-        <Dialog.Header caption={`Report "${campaign.title}"`} />
-        <Dialog.Body>
+      <Dialog open={open} onOpenChange={(next) => (next ? setOpen(true) : close())}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report &ldquo;{campaign.title}&rdquo;</DialogTitle>
+          </DialogHeader>
+
           {!user ? (
-            <Alert
-              theme="info"
-              title="Log in to report"
-              message="Reports are tied to an account so our team can follow up."
-              actions={<Alert.Action href="/login">Log in</Alert.Action>}
-            />
+            <Alert>
+              <Flag />
+              <AlertTitle>Log in to report</AlertTitle>
+              <AlertDescription>
+                Reports are tied to an account so our team can follow up.
+                <Button size="sm" className="mt-2 w-fit" asChild>
+                  <a href="/login">Log in</a>
+                </Button>
+              </AlertDescription>
+            </Alert>
           ) : submitted ? (
             <div role="status">
-              <Alert
-                theme="success"
-                title="Report filed"
-                message="Thanks — the review team has been notified and will look into this campaign."
-              />
+              <Alert variant="success">
+                <CircleCheck />
+                <AlertTitle>Report filed</AlertTitle>
+                <AlertDescription>
+                  Thanks — the review team has been notified and will look into this
+                  campaign.
+                </AlertDescription>
+              </Alert>
             </div>
           ) : (
-            <form id="report-campaign-form" onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-              {formError ? <Alert theme="danger" message={formError} /> : null}
+            <form
+              id="report-campaign-form"
+              onSubmit={onSubmit}
+              noValidate
+              className="flex flex-col gap-4"
+            >
+              {formError ? (
+                <Alert variant="destructive">
+                  <AlertDescription>{formError}</AlertDescription>
+                </Alert>
+              ) : null}
 
               <Controller
                 control={control}
                 name="reason"
                 render={({ field, fieldState }) => (
-                  <FormField label="Reason" required>
-                    <Select
-                      size="l"
-                      width="max"
-                      value={[field.value]}
-                      onUpdate={(v) => field.onChange(v[0])}
-                      validationState={fieldState.error ? "invalid" : undefined}
-                      errorMessage={fieldState.error?.message}
-                      options={REPORT_REASONS.map((r) => ({ value: r, content: r }))}
-                    />
+                  <FormField label="Reason" required error={fieldState.error?.message}>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        className="w-full"
+                        aria-invalid={fieldState.error ? true : undefined}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {REPORT_REASONS.map((r) => (
+                          <SelectItem key={r} value={r}>
+                            {r}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormField>
                 )}
               />
@@ -114,44 +157,52 @@ export function ReportCampaignButton({ campaign }: ReportCampaignButtonProps) {
                 control={control}
                 name="details"
                 render={({ field, fieldState }) => (
-                  <FormField label="What did you notice?" htmlFor="report-details" required>
-                    <TextArea
+                  <FormField
+                    label="What did you notice?"
+                    htmlFor="report-details"
+                    required
+                    error={fieldState.error?.message}
+                  >
+                    <Textarea
                       id="report-details"
-                      size="l"
                       rows={4}
                       placeholder="Links, inconsistencies, anything that helps the review team verify the problem."
                       value={field.value}
-                      onUpdate={field.onChange}
+                      onChange={field.onChange}
                       onBlur={field.onBlur}
-                      validationState={fieldState.error ? "invalid" : undefined}
-                      errorMessage={fieldState.error?.message}
+                      aria-invalid={fieldState.error ? true : undefined}
                     />
                   </FormField>
                 )}
               />
             </form>
           )}
-        </Dialog.Body>
-        {user && !submitted ? (
-          <Dialog.Footer
-            textButtonApply="File report"
-            textButtonCancel="Cancel"
-            onClickButtonCancel={close}
-            propsButtonApply={{
-              view: "outlined-danger",
-              loading: isSubmitting || report.isPending,
-              type: "submit",
-              // Submit the form inside the body from the footer button.
-              extraProps: { form: "report-campaign-form" },
-            }}
-          />
-        ) : (
-          <Dialog.Footer
-            textButtonApply="Close"
-            onClickButtonApply={close}
-            propsButtonApply={{ view: "normal" }}
-          />
-        )}
+
+          <DialogFooter>
+            {user && !submitted ? (
+              <>
+                <Button type="button" variant="outline" onClick={close}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  form="report-campaign-form"
+                  variant="destructive"
+                  disabled={isSubmitting || report.isPending}
+                >
+                  {isSubmitting || report.isPending ? (
+                    <Loader2 className="animate-spin" aria-hidden="true" />
+                  ) : null}
+                  File report
+                </Button>
+              </>
+            ) : (
+              <Button type="button" onClick={close}>
+                Close
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

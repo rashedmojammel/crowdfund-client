@@ -22,10 +22,10 @@ export function ProgressBar({ raised, goal }: ProgressBarProps) {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={`${percent}% funded`}
-      className="h-2 w-full overflow-hidden rounded-full bg-[var(--g-color-base-generic)]"
+      className="h-2 w-full overflow-hidden rounded-full bg-secondary"
     >
       <motion.div
-        className="h-full rounded-full bg-[var(--g-color-base-brand)]"
+        className="h-full rounded-full bg-primary"
         initial={{ width: reduceMotion ? `${percent}%` : "0%" }}
         whileInView={{ width: `${percent}%` }}
         viewport={{ once: true }}

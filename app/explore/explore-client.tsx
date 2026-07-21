@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Button } from "@gravity-ui/uikit";
-import { Magnifier } from "@gravity-ui/icons";
+import { CircleAlert, Search } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/FadeIn";
 import {
   CampaignFilters,
@@ -69,10 +70,10 @@ export function ExploreClient({ embedded = false }: ExploreClientProps) {
   const Heading = embedded ? "h2" : "h1";
 
   return (
-    <div className={embedded ? undefined : "container-page py-12"}>
+    <div className={embedded ? undefined : "container-fs py-12"}>
       <FadeIn>
         <Heading>Explore campaigns</Heading>
-        <p className="mt-2 max-w-xl text-sm opacity-70">
+        <p className="mt-2 max-w-xl text-sm text-muted-foreground">
           Every campaign here has been reviewed and approved, and is still open for
           contributions.
         </p>
@@ -83,23 +84,27 @@ export function ExploreClient({ embedded = false }: ExploreClientProps) {
 
       <div className="mt-8">
         {isError ? (
-          <Alert
-            theme="danger"
-            title="Couldn't load campaigns"
-            message="Something went wrong while fetching campaigns."
-            actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
-          />
+          <Alert variant="destructive">
+            <CircleAlert />
+            <AlertTitle>Couldn&rsquo;t load campaigns</AlertTitle>
+            <AlertDescription>
+              Something went wrong while fetching campaigns.
+              <Button variant="outline" size="sm" className="mt-2 w-fit" onClick={() => refetch()}>
+                Try again
+              </Button>
+            </AlertDescription>
+          </Alert>
         ) : (
           <CampaignGrid
             campaigns={data}
             isLoading={isPending}
             emptyState={
               <EmptyState
-                icon={Magnifier}
+                icon={Search}
                 title="No campaigns match"
                 subtitle="Try a different category, a wider deadline window, or clear the filters to see everything that's live."
                 action={
-                  <Button size="l" view="outlined" onClick={() => handleFiltersChange(EMPTY_FILTERS)}>
+                  <Button variant="outline" onClick={() => handleFiltersChange(EMPTY_FILTERS)}>
                     Clear all filters
                   </Button>
                 }
