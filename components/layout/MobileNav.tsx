@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Button, Icon } from "@gravity-ui/uikit";
-import { Bars, Xmark } from "@gravity-ui/icons";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { getDashboardNav, isNavItemActive } from "@/components/layout/dashboard-nav";
 import { SIGNATURE_EASE } from "@/components/animations/FadeIn";
 import { useDismissable } from "@/hooks/useDismissable";
@@ -36,8 +36,13 @@ export function MobileNav() {
 
   return (
     <div className="md:hidden">
-      <Button view="flat" size="l" onClick={() => setOpen(true)} aria-label="Open navigation menu">
-        <Icon data={Bars} size={18} />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setOpen(true)}
+        aria-label="Open navigation menu"
+      >
+        <Menu className="size-5" aria-hidden="true" />
       </Button>
 
       <AnimatePresence>
@@ -61,19 +66,24 @@ export function MobileNav() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: reduceMotion ? 0 : "-100%", opacity: reduceMotion ? 0 : 1 }}
               transition={{ duration: 0.3, ease: SIGNATURE_EASE }}
-              className="shadow-modal fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-[var(--g-color-base-background)]"
+              className="shadow-modal fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r bg-background"
             >
-              <div className="flex h-16 items-center justify-between border-b border-[var(--g-color-line-generic)] px-4">
+              <div className="flex h-16 items-center justify-between border-b px-4">
                 <Link
                   href="/"
                   onClick={() => setOpen(false)}
                   className="text-xl font-bold"
                   aria-label="FundSpark home"
                 >
-                  Fund<span className="text-[var(--g-color-text-brand)]">Spark</span>
+                  Fund<span className="text-primary">Spark</span>
                 </Link>
-                <Button view="flat" size="l" onClick={() => setOpen(false)} aria-label="Close menu">
-                  <Icon data={Xmark} size={18} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X className="size-5" aria-hidden="true" />
                 </Button>
               </div>
 
@@ -89,11 +99,11 @@ export function MobileNav() {
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                         active
-                          ? "bg-[var(--g-color-base-selection)] font-semibold"
-                          : "hover:bg-[var(--g-color-base-simple-hover)]"
+                          ? "bg-accent font-semibold text-accent-foreground"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
-                      <Icon data={item.icon} size={16} />
+                      <item.icon className="size-4" aria-hidden="true" />
                       {item.label}
                     </Link>
                   );

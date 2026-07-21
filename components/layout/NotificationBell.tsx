@@ -3,9 +3,9 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Icon } from "@gravity-ui/uikit";
-import { Bell } from "@gravity-ui/icons";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Bell, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useDismissable } from "@/hooks/useDismissable";
 import { apiFetch } from "@/lib/api-client";
 import { formatTimeAgo } from "@/lib/format";
@@ -45,19 +45,19 @@ export function NotificationBell() {
   return (
     <div ref={containerRef} className="relative">
       <Button
-        view="flat"
-        size="l"
+        variant="ghost"
+        size="icon"
         onClick={() => setOpen((v) => !v)}
         aria-label={count > 0 ? `Notifications, ${count} unread` : "Notifications"}
         aria-expanded={open}
         aria-haspopup="dialog"
       >
-        <Icon data={Bell} size={18} />
+        <Bell className="size-5" aria-hidden="true" />
       </Button>
       {count > 0 ? (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--g-color-base-danger-heavy)] px-1 text-[10px] font-semibold leading-none text-[var(--g-color-text-light-primary)]"
+          className="pointer-events-none absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground"
         >
           {count > 9 ? "9+" : count}
         </span>
@@ -72,17 +72,20 @@ export function NotificationBell() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.95 }}
             transition={{ duration: 0.2 }}
-            className="shadow-modal absolute right-0 top-12 z-50 w-80 origin-top-right rounded-xl bg-[var(--g-color-base-float)]"
+            className="shadow-modal absolute right-0 top-12 z-50 w-80 origin-top-right rounded-xl border bg-popover text-popover-foreground"
           >
-            <div className="flex items-center justify-between gap-2 border-b border-[var(--g-color-line-generic)] px-4 py-3">
+            <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
               <span className="font-semibold">Notifications</span>
               {count > 0 ? (
                 <Button
-                  view="flat"
-                  size="s"
-                  loading={markAllRead.isPending}
+                  variant="ghost"
+                  size="sm"
+                  disabled={markAllRead.isPending}
                   onClick={() => markAllRead.mutate()}
                 >
+                  {markAllRead.isPending ? (
+                    <Loader2 className="animate-spin" aria-hidden="true" />
+                  ) : null}
                   Mark all read
                 </Button>
               ) : null}
@@ -96,7 +99,7 @@ export function NotificationBell() {
                   <Skeleton className="h-10 w-full" />
                 </div>
               ) : !notifications || notifications.length === 0 ? (
-                <p className="px-4 py-8 text-center text-sm opacity-60">
+                <p className="px-4 py-8 text-center text-sm text-muted-foreground">
                   You&rsquo;re all caught up — nothing new right now.
                 </p>
               ) : (
@@ -104,20 +107,22 @@ export function NotificationBell() {
                   {notifications.map((n) => (
                     <li
                       key={n.id}
-                      className="flex gap-3 border-b border-[var(--g-color-line-generic)] px-4 py-3 last:border-b-0"
+                      className="flex gap-3 border-b px-4 py-3 last:border-b-0"
                     >
                       <span
                         aria-label={n.read ? undefined : "Unread"}
                         className={cn(
                           "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                          n.read ? "bg-transparent" : "bg-[var(--g-color-base-brand)]"
+                          n.read ? "bg-transparent" : "bg-primary"
                         )}
                       />
                       <div className="min-w-0">
                         <p className={cn("text-sm leading-snug", !n.read && "font-medium")}>
                           {n.message}
                         </p>
-                        <p className="mt-1 text-sm opacity-60">{formatTimeAgo(n.createdAt)}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {formatTimeAgo(n.createdAt)}
+                        </p>
                       </div>
                     </li>
                   ))}

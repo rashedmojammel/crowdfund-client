@@ -5,10 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Avatar, Icon } from "@gravity-ui/uikit";
-import { ArrowRightFromSquare, House } from "@gravity-ui/icons";
+import { House, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDismissable } from "@/hooks/useDismissable";
 import { useSessionStore } from "@/lib/store";
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 export function UserMenu() {
   const router = useRouter();
@@ -39,7 +47,10 @@ export function UserMenu() {
         aria-haspopup="dialog"
         className="flex cursor-pointer items-center rounded-full"
       >
-        <Avatar imgUrl={user.image} text={user.name} size="m" />
+        <Avatar>
+          <AvatarImage src={user.image} alt="" />
+          <AvatarFallback>{initials(user.name)}</AvatarFallback>
+        </Avatar>
       </button>
 
       <AnimatePresence>
@@ -51,27 +62,27 @@ export function UserMenu() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.95 }}
             transition={{ duration: 0.2 }}
-            className="shadow-modal absolute right-0 top-12 z-50 w-64 origin-top-right rounded-xl bg-[var(--g-color-base-float)]"
+            className="shadow-modal absolute right-0 top-12 z-50 w-64 origin-top-right rounded-xl border bg-popover text-popover-foreground"
           >
-            <div className="border-b border-[var(--g-color-line-generic)] px-4 py-3">
+            <div className="border-b px-4 py-3">
               <p className="truncate font-semibold">{user.name}</p>
-              <p className="truncate text-sm opacity-60">{user.email}</p>
+              <p className="truncate text-sm text-muted-foreground">{user.email}</p>
             </div>
             <div className="p-2">
               <Link
                 href="/"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-[var(--g-color-base-simple-hover)]"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
               >
-                <Icon data={House} size={16} />
+                <House className="size-4" aria-hidden="true" />
                 Back to FundSpark
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--g-color-text-danger)] transition-colors hover:bg-[var(--g-color-base-simple-hover)]"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-muted"
               >
-                <Icon data={ArrowRightFromSquare} size={16} />
+                <LogOut className="size-4" aria-hidden="true" />
                 Log out
               </button>
             </div>
