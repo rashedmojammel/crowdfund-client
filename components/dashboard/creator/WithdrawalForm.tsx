@@ -4,7 +4,17 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { Alert, Button, Select, TextInput } from "@gravity-ui/uikit";
+import { CircleCheck, Loader2, TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Pressable } from "@/components/animations/Pressable";
 import { FormField } from "@/components/forms/FormField";
 import { apiFetch } from "@/lib/api-client";
@@ -45,11 +55,14 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
   // Per spec: under the 200-credit minimum there is no form to submit.
   if (availableCredits < MIN_WITHDRAWAL_CREDITS) {
     return (
-      <Alert
-        theme="warning"
-        title="Insufficient credit"
-        message={`You need at least ${MIN_WITHDRAWAL_CREDITS} raised credits to request a withdrawal. Available now: ${formatCredits(availableCredits)}.`}
-      />
+      <Alert variant="warning">
+        <TriangleAlert />
+        <AlertTitle>Insufficient credit</AlertTitle>
+        <AlertDescription>
+          You need at least {MIN_WITHDRAWAL_CREDITS} raised credits to request a withdrawal.
+          Available now: {formatCredits(availableCredits)}.
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -80,33 +93,44 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
       {submitted ? (
         <div role="status">
-          <Alert
-            theme="success"
-            title="Withdrawal requested"
-            message={`${formatCredits(submitted.credits)} (${formatUsd(submitted.amountUsd)}) queued for payout via ${submitted.paymentSystem}. An admin will mark it paid.`}
-          />
+          <Alert variant="success">
+            <CircleCheck />
+            <AlertTitle>Withdrawal requested</AlertTitle>
+            <AlertDescription>
+              {formatCredits(submitted.credits)} ({formatUsd(submitted.amountUsd)}) queued for
+              payout via {submitted.paymentSystem}. An admin will mark it paid.
+            </AlertDescription>
+          </Alert>
         </div>
       ) : null}
-      {formError ? <Alert theme="danger" message={formError} /> : null}
+      {formError ? (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      ) : null}
 
       <Controller
         control={control}
         name="credits"
         render={({ field, fieldState }) => (
-          <FormField label="Credits to withdraw" htmlFor="withdraw-credits" required>
-            <TextInput
+          <FormField
+            label="Credits to withdraw"
+            htmlFor="withdraw-credits"
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
               id="withdraw-credits"
-              size="l"
               type="text"
-              controlProps={{ inputMode: "numeric" }}
+              inputMode="numeric"
               placeholder={String(MIN_WITHDRAWAL_CREDITS)}
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
-            <p className="text-sm opacity-70">
+            <p className="text-sm text-muted-foreground">
               {usdPreview !== null
                 ? `You'll receive ${formatUsd(usdPreview)} (${CREDITS_PER_USD_WITHDRAW} credits = $1)`
                 : `${CREDITS_PER_USD_WITHDRAW} credits = $1 · ${formatCredits(availableCredits)} available`}
@@ -120,16 +144,22 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
           control={control}
           name="paymentSystem"
           render={({ field, fieldState }) => (
-            <FormField label="Payout method" required>
-              <Select
-                size="l"
-                width="max"
-                value={[field.value]}
-                onUpdate={(v) => field.onChange(v[0])}
-                validationState={fieldState.error ? "invalid" : undefined}
-                errorMessage={fieldState.error?.message}
-                options={PAYOUT_METHODS.map((m) => ({ value: m, content: m }))}
-              />
+            <FormField label="Payout method" required error={fieldState.error?.message}>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger
+                  className="w-full"
+                  aria-invalid={fieldState.error ? true : undefined}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYOUT_METHODS.map((m) => (
+                    <SelectItem key={m} value={m}>
+                      {m}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormField>
           )}
         />
@@ -138,16 +168,19 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
           control={control}
           name="accountNumber"
           render={({ field, fieldState }) => (
-            <FormField label="Account number" htmlFor="withdraw-account" required>
-              <TextInput
+            <FormField
+              label="Account number"
+              htmlFor="withdraw-account"
+              required
+              error={fieldState.error?.message}
+            >
+              <Input
                 id="withdraw-account"
-                size="l"
                 placeholder="01712-000045"
                 value={field.value}
-                onUpdate={field.onChange}
+                onChange={field.onChange}
                 onBlur={field.onBlur}
-                validationState={fieldState.error ? "invalid" : undefined}
-                errorMessage={fieldState.error?.message}
+                aria-invalid={fieldState.error ? true : undefined}
               />
             </FormField>
           )}
@@ -155,7 +188,8 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
       </div>
 
       <Pressable>
-        <Button type="submit" view="action" size="l" width="max" loading={isSubmitting}>
+        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
           Request withdrawal
         </Button>
       </Pressable>

@@ -4,11 +4,16 @@
 // deadline, and cover are locked once a campaign is submitted.
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { Alert, Button, TextArea, TextInput } from "@gravity-ui/uikit";
+import { Loader2, TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Pressable } from "@/components/animations/Pressable";
 import { FormField } from "@/components/forms/FormField";
 import { apiFetch } from "@/lib/api-client";
@@ -54,21 +59,29 @@ export function UpdateCampaignForm({ campaign }: UpdateCampaignFormProps) {
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-      {formError ? <Alert theme="danger" message={formError} /> : null}
+      {formError ? (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      ) : null}
 
       <Controller
         control={control}
         name="title"
         render={({ field, fieldState }) => (
-          <FormField label="Campaign title" htmlFor="edit-title" required>
-            <TextInput
+          <FormField
+            label="Campaign title"
+            htmlFor="edit-title"
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
               id="edit-title"
-              size="l"
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
@@ -78,16 +91,19 @@ export function UpdateCampaignForm({ campaign }: UpdateCampaignFormProps) {
         control={control}
         name="story"
         render={({ field, fieldState }) => (
-          <FormField label="Story" htmlFor="edit-story" required>
-            <TextArea
+          <FormField
+            label="Story"
+            htmlFor="edit-story"
+            required
+            error={fieldState.error?.message}
+          >
+            <Textarea
               id="edit-story"
-              size="l"
               rows={8}
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
@@ -97,16 +113,19 @@ export function UpdateCampaignForm({ campaign }: UpdateCampaignFormProps) {
         control={control}
         name="reward"
         render={({ field, fieldState }) => (
-          <FormField label="Backer reward" htmlFor="edit-reward" required>
-            <TextArea
+          <FormField
+            label="Backer reward"
+            htmlFor="edit-reward"
+            required
+            error={fieldState.error?.message}
+          >
+            <Textarea
               id="edit-reward"
-              size="l"
               rows={3}
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
@@ -114,19 +133,13 @@ export function UpdateCampaignForm({ campaign }: UpdateCampaignFormProps) {
 
       <div className="flex items-center gap-3">
         <Pressable className="grow">
-          <Button
-            type="submit"
-            view="action"
-            size="l"
-            width="max"
-            loading={isSubmitting}
-            disabled={!isDirty}
-          >
+          <Button type="submit" size="lg" className="w-full" disabled={isSubmitting || !isDirty}>
+            {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
             Save changes
           </Button>
         </Pressable>
-        <Button view="flat" size="l" href="/dashboard/my-campaigns">
-          Cancel
+        <Button variant="ghost" size="lg" asChild>
+          <Link href="/dashboard/my-campaigns">Cancel</Link>
         </Button>
       </div>
     </form>
