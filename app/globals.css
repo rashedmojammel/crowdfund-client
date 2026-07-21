@@ -140,14 +140,11 @@
 }
 
 /* ------------------------------------------------------------------------
-   LEGACY COMPATIBILITY — used by components still awaiting the shadcn
-   migration (Prompt 2). Delete this whole block once no component
-   references these classes.
+   LEGACY COMPATIBILITY — card-elevate/shadow-card/shadow-modal still back
+   several components pending the shadow-tier standardization pass onto
+   native Tailwind shadow-sm/shadow-md/shadow-xl. Delete this block once
+   nothing references these three classes.
    ------------------------------------------------------------------------ */
-
-.container-page {
-  @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8;
-}
 
 .card-elevate {
   box-shadow:
@@ -169,22 +166,3 @@
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
 }
 
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-.skeleton-pulse {
-  background: var(--fs-bg-subtle);
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-}
-
-.hero-swiper {
-  --swiper-theme-color: #ffffff;
-  --swiper-pagination-bullet-inactive-color: rgba(255, 255, 255, 0.6);
-  --swiper-pagination-bullet-inactive-opacity: 1;
-}
