@@ -1,10 +1,12 @@
 "use client";
 
-import { useReducedMotion } from "motion/react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
-import "swiper/css";
+// Marquee testimonial wall (replaces the Swiper carousel) — two rows
+// scrolling opposite directions, edge-faded via mask-image. Pattern
+// referenced from 21st.dev's "Testimonials with Marquee" listings during
+// research; implementation is original (see MIGRATION.md).
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Marquee } from "@/components/ui/marquee";
 import { FadeIn } from "@/components/animations/FadeIn";
 
 const initials = (name: string) =>
@@ -53,8 +55,28 @@ const testimonials = [
   },
 ];
 
+function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
+  return (
+    <figure className="card-elevate flex w-80 shrink-0 flex-col gap-4 rounded-xl bg-card p-6">
+      <blockquote className="grow text-sm leading-relaxed text-foreground/90">
+        &ldquo;{t.quote}&rdquo;
+      </blockquote>
+      <figcaption className="flex items-center gap-3">
+        <Avatar aria-label={t.name}>
+          <AvatarImage src={t.image} alt="" />
+          <AvatarFallback>{initials(t.name)}</AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="text-sm font-semibold">{t.name}</p>
+          <p className="text-sm text-muted-foreground">{t.role}</p>
+        </div>
+      </figcaption>
+    </figure>
+  );
+}
+
 export function Testimonials() {
-  const reduceMotion = useReducedMotion();
+  const reversed = [...testimonials].reverse();
 
   return (
     <section aria-labelledby="testimonials-heading" className="container-fs">
@@ -65,38 +87,19 @@ export function Testimonials() {
         </p>
       </FadeIn>
 
-      <div className="mt-12">
-        <Swiper
-          modules={[Autoplay]}
-          autoplay={reduceMotion ? false : { delay: 5000, disableOnInteraction: false }}
-          loop
-          spaceBetween={16}
-          slidesPerView={1}
-          breakpoints={{
-            640: { slidesPerView: 2, spaceBetween: 24 },
-            1024: { slidesPerView: 3, spaceBetween: 24 },
-          }}
-        >
+      <div
+        className="mt-12 flex flex-col gap-6 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+      >
+        <Marquee durationSeconds={45}>
           {testimonials.map((t) => (
-            <SwiperSlide key={t.name} className="h-auto">
-              <figure className="card-elevate flex h-full flex-col gap-4 rounded-xl bg-card p-6">
-                <blockquote className="grow text-sm leading-relaxed text-foreground/90">
-                  &ldquo;{t.quote}&rdquo;
-                </blockquote>
-                <figcaption className="flex items-center gap-3">
-                  <Avatar aria-label={t.name}>
-                    <AvatarImage src={t.image} alt="" />
-                    <AvatarFallback>{initials(t.name)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-sm text-muted-foreground">{t.role}</p>
-                  </div>
-                </figcaption>
-              </figure>
-            </SwiperSlide>
+            <TestimonialCard key={t.name} t={t} />
           ))}
-        </Swiper>
+        </Marquee>
+        <Marquee reverse durationSeconds={50}>
+          {reversed.map((t) => (
+            <TestimonialCard key={t.name} t={t} />
+          ))}
+        </Marquee>
       </div>
     </section>
   );
