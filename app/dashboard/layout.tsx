@@ -6,7 +6,8 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Loader } from "@gravity-ui/uikit";
+import { Loader2 } from "lucide-react";
+import { CommandPalette } from "@/components/layout/CommandPalette";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardTopBar } from "@/components/layout/DashboardTopBar";
 import { useSessionStore } from "@/lib/store";
@@ -25,7 +26,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   if (!hasHydrated || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader size="l" />
+        <Loader2 className="size-8 animate-spin text-muted-foreground" aria-hidden="true" />
+        <span className="sr-only">Loading your session…</span>
       </div>
     );
   }
@@ -37,6 +39,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <DashboardTopBar />
         <main className="grow px-5 py-8 md:px-8">{children}</main>
       </div>
+      <CommandPalette />
     </div>
   );
 }
