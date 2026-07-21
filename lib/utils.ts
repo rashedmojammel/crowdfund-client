@@ -2,8 +2,12 @@
 // Rates are fixed by product rules: 10 credits = $1 to buy, 20 credits = $1
 // to withdraw, 200-credit minimum withdrawal.
 
-export function cn(...classes: Array<string | false | null | undefined>): string {
-  return classes.filter(Boolean).join(" ");
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+/** shadcn-standard class combiner: clsx for conditionals, twMerge for conflicts. */
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
 }
 
 export const CREDITS_PER_USD_BUY = 10;
