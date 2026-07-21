@@ -107,6 +107,38 @@
   @apply mx-auto w-full max-w-[1200px] px-5 md:px-8;
 }
 
+/* Infinite marquee — CSS-driven (not JS/motion) for smooth continuous
+   scroll. Content is duplicated by the component; this animates it by
+   exactly -50% so the loop is seamless. */
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.animate-marquee-left {
+  animation: marquee-left var(--marquee-duration, 40s) linear infinite;
+}
+.animate-marquee-right {
+  animation: marquee-right var(--marquee-duration, 40s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation: none;
+  }
+}
+
 /* ------------------------------------------------------------------------
    LEGACY COMPATIBILITY — used by components still awaiting the shadcn
    migration (Prompt 2). Delete this whole block once no component
