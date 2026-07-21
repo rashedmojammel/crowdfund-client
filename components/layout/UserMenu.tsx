@@ -63,7 +63,7 @@ export function UserMenu() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.95 }}
             transition={{ duration: 0.2 }}
-            className="shadow-modal absolute right-0 top-12 z-50 w-64 origin-top-right rounded-xl border bg-popover text-popover-foreground"
+            className="absolute right-0 top-12 z-50 w-64 origin-top-right rounded-xl border bg-popover text-popover-foreground shadow-xl"
           >
             <div className="border-b px-4 py-3">
               <p className="truncate font-semibold">{user.name}</p>

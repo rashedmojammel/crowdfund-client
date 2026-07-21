@@ -140,10 +140,12 @@
 }
 
 /* ------------------------------------------------------------------------
-   LEGACY COMPATIBILITY — card-elevate/shadow-card/shadow-modal still back
-   several components pending the shadow-tier standardization pass onto
-   native Tailwind shadow-sm/shadow-md/shadow-xl. Delete this block once
-   nothing references these three classes.
+   LEGACY COMPATIBILITY — the shadcn-migrated surface now uses native
+   shadow-sm/shadow-md/shadow-xl directly (see the shadow audit). These
+   three classes only remain for app/mock-checkout/checkout-client.tsx,
+   components/dashboard/supporter/CreditPackageCard.tsx, and
+   components/dashboard/StatsCard.tsx — still on the Gravity migration
+   backlog in MIGRATION.md. Delete this block once those are migrated.
    ------------------------------------------------------------------------ */
 
 .card-elevate {

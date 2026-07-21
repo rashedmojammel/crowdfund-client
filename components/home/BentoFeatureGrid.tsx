@@ -52,7 +52,7 @@ export function BentoFeatureGrid() {
           <StaggerItem key={step.title} className={cn("h-full", step.span)}>
             <div
               className={cn(
-                "card-elevate relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-2xl border p-6 md:p-8",
+                "relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-2xl border p-6 shadow-sm transition-shadow hover:shadow-md md:p-8",
                 step.accent ? "bg-primary text-primary-foreground" : "bg-card"
               )}
             >

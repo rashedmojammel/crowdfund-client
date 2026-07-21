@@ -66,7 +66,7 @@ export function MobileNav() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: reduceMotion ? 0 : "-100%", opacity: reduceMotion ? 0 : 1 }}
               transition={{ duration: 0.3, ease: SIGNATURE_EASE }}
-              className="shadow-modal fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r bg-background"
+              className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r bg-background shadow-xl"
             >
               <div className="flex h-16 items-center justify-between border-b px-4">
                 <Link

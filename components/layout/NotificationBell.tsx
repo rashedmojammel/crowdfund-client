@@ -72,7 +72,7 @@ export function NotificationBell() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.95 }}
             transition={{ duration: 0.2 }}
-            className="shadow-modal absolute right-0 top-12 z-50 w-80 origin-top-right rounded-xl border bg-popover text-popover-foreground"
+            className="absolute right-0 top-12 z-50 w-80 origin-top-right rounded-xl border bg-popover text-popover-foreground shadow-xl"
           >
             <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
               <span className="font-semibold">Notifications</span>

@@ -137,7 +137,7 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
 
           {/* Sidebar */}
           <aside className="flex flex-col gap-6 self-start lg:sticky lg:top-24">
-            <div className="card-elevate flex flex-col gap-4 rounded-xl bg-card p-4 md:p-6">
+            <div className="flex flex-col gap-4 rounded-xl bg-card p-4 shadow-sm md:p-6">
               <ProgressBar raised={campaign.amount_raised} goal={campaign.funding_goal} />
               <div>
                 <p className="text-[24px] font-bold leading-[1.3]">
@@ -155,7 +155,7 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
               </div>
             </div>
 
-            <div className="card-elevate rounded-xl bg-card p-4 md:p-6">
+            <div className="rounded-xl bg-card p-4 shadow-sm md:p-6">
               <ContributeForm campaign={campaign} />
             </div>
 

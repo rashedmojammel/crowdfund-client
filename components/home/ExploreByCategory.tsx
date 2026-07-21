@@ -35,7 +35,7 @@ export function ExploreByCategory() {
               <Link
                 href={`/explore?category=${category.value}`}
                 className={cn(
-                  "card-elevate flex h-full flex-col items-center gap-3 rounded-xl bg-card p-6 text-center",
+                  "flex h-full flex-col items-center gap-3 rounded-xl bg-card p-6 text-center shadow-sm transition-shadow hover:shadow-md",
                   FOCUS_RING
                 )}
               >

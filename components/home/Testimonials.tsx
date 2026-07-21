@@ -57,7 +57,7 @@ const testimonials = [
 
 function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
   return (
-    <figure className="card-elevate flex w-80 shrink-0 flex-col gap-4 rounded-xl bg-card p-6">
+    <figure className="flex w-80 shrink-0 flex-col gap-4 rounded-xl bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
       <blockquote className="grow text-sm leading-relaxed text-foreground/90">
         &ldquo;{t.quote}&rdquo;
       </blockquote>
