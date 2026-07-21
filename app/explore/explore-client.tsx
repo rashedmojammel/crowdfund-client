@@ -33,7 +33,12 @@ function toQueryString(filters: ExploreFilters, search: string): string {
   return qs ? `?${qs}` : "";
 }
 
-export function ExploreClient() {
+interface ExploreClientProps {
+  /** Dashboard variant: no page container/padding, smaller heading. */
+  embedded?: boolean;
+}
+
+export function ExploreClient({ embedded = false }: ExploreClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<ExploreFilters>({
@@ -52,18 +57,21 @@ export function ExploreClient() {
     queryFn: () => apiFetch<Campaign[]>(`/campaigns${queryString}`),
   });
 
+  const basePath = embedded ? "/dashboard/explore-campaigns" : "/explore";
   const handleFiltersChange = (next: ExploreFilters) => {
     setFilters(next);
     // Keep the category shareable in the URL (homepage tiles link with it).
-    router.replace(next.category ? `/explore?category=${next.category}` : "/explore", {
+    router.replace(next.category ? `${basePath}?category=${next.category}` : basePath, {
       scroll: false,
     });
   };
 
+  const Heading = embedded ? "h2" : "h1";
+
   return (
-    <div className="container-page py-12">
+    <div className={embedded ? undefined : "container-page py-12"}>
       <FadeIn>
-        <h1>Explore campaigns</h1>
+        <Heading>Explore campaigns</Heading>
         <p className="mt-2 max-w-xl text-sm opacity-70">
           Every campaign here has been reviewed and approved, and is still open for
           contributions.
