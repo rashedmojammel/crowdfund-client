@@ -182,6 +182,11 @@ export async function mockGetMe(email: string): Promise<User> {
 export interface CampaignFilters {
   category?: string;
   search?: string;
+  /** Only campaigns ending within this many days. */
+  deadlineWithinDays?: number;
+  /** Funding-goal range in credits. */
+  minGoal?: number;
+  maxGoal?: number;
   sort?: "newest" | "deadline" | "most-funded";
 }
 
@@ -199,6 +204,16 @@ export async function mockGetCampaigns(filters: CampaignFilters = {}): Promise<C
     result = result.filter(
       (c) => c.title.toLowerCase().includes(q) || c.story.toLowerCase().includes(q)
     );
+  }
+  if (filters.deadlineWithinDays !== undefined) {
+    const cutoff = Date.now() + filters.deadlineWithinDays * 24 * 60 * 60 * 1000;
+    result = result.filter((c) => new Date(c.deadline).getTime() <= cutoff);
+  }
+  if (filters.minGoal !== undefined) {
+    result = result.filter((c) => c.funding_goal >= filters.minGoal!);
+  }
+  if (filters.maxGoal !== undefined) {
+    result = result.filter((c) => c.funding_goal <= filters.maxGoal!);
   }
   switch (filters.sort) {
     case "deadline":

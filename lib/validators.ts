@@ -24,3 +24,14 @@ export const registerSchema = z.object({
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+/** Kept as a string for the input field; parse with Number() after validation. */
+export const contributionSchema = z.object({
+  amount: z
+    .string()
+    .min(1, "Enter an amount")
+    .regex(/^\d+$/, "Whole credits only — no decimals or symbols")
+    .refine((v) => Number(v) >= 10, "Minimum contribution is 10 credits"),
+});
+
+export type ContributionInput = z.infer<typeof contributionSchema>;

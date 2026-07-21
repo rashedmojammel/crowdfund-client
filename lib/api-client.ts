@@ -74,6 +74,11 @@ const routes: Array<[method: string, pattern: RegExp, handler: RouteHandler]> = 
       mock.mockGetCampaigns({
         category: c.query.get("category") ?? undefined,
         search: c.query.get("search") ?? undefined,
+        deadlineWithinDays: c.query.has("deadlineWithinDays")
+          ? Number(c.query.get("deadlineWithinDays"))
+          : undefined,
+        minGoal: c.query.has("minGoal") ? Number(c.query.get("minGoal")) : undefined,
+        maxGoal: c.query.has("maxGoal") ? Number(c.query.get("maxGoal")) : undefined,
         sort: (c.query.get("sort") as mock.CampaignFilters["sort"]) ?? undefined,
       }),
   ],
