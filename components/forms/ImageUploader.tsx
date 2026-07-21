@@ -1,7 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Avatar, Button, Text, TextInput } from "@gravity-ui/uikit";
+import { Loader2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { isImgbbConfigured, uploadToImgBB } from "@/lib/imgbb";
 
 interface ImageUploaderProps {
@@ -23,21 +26,30 @@ export function ImageUploader({ value, onChange, errorMessage, disabled }: Image
   if (!isImgbbConfigured) {
     return (
       <div className="flex items-center gap-3">
-        {value ? <Avatar imgUrl={value} size="l" /> : null}
+        {value ? (
+          <Avatar className="size-11">
+            <AvatarImage src={value} alt="" />
+            <AvatarFallback>?</AvatarFallback>
+          </Avatar>
+        ) : null}
         <div className="grow">
-          <TextInput
-            size="l"
+          <Input
             type="url"
             placeholder="https://example.com/your-photo.jpg"
             value={value}
-            onUpdate={onChange}
+            onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
-            validationState={errorMessage ? "invalid" : undefined}
-            errorMessage={errorMessage}
+            aria-invalid={errorMessage ? true : undefined}
           />
-          <Text color="secondary" variant="caption-2">
-            Paste an image URL — file upload activates once an ImgBB key is configured.
-          </Text>
+          {errorMessage ? (
+            <p role="alert" className="mt-1 text-sm text-destructive">
+              {errorMessage}
+            </p>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Paste an image URL — file upload activates once an ImgBB key is configured.
+            </p>
+          )}
         </div>
       </div>
     );
@@ -60,7 +72,12 @@ export function ImageUploader({ value, onChange, errorMessage, disabled }: Image
 
   return (
     <div className="flex items-center gap-3">
-      {value ? <Avatar imgUrl={value} size="l" /> : null}
+      {value ? (
+        <Avatar className="size-11">
+          <AvatarImage src={value} alt="" />
+          <AvatarFallback>?</AvatarFallback>
+        </Avatar>
+      ) : null}
       <input
         ref={fileInputRef}
         type="file"
@@ -70,18 +87,18 @@ export function ImageUploader({ value, onChange, errorMessage, disabled }: Image
       />
       <div className="flex flex-col gap-1">
         <Button
-          size="l"
-          view="outlined"
-          loading={uploading}
-          disabled={disabled}
+          type="button"
+          variant="outline"
+          disabled={disabled || uploading}
           onClick={() => fileInputRef.current?.click()}
         >
+          {uploading ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
           {value ? "Replace picture" : "Upload picture"}
         </Button>
         {shownError ? (
-          <Text color="danger" variant="caption-2">
+          <p role="alert" className="text-sm text-destructive">
             {shownError}
-          </Text>
+          </p>
         ) : null}
       </div>
     </div>

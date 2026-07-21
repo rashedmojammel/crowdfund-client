@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Button, PasswordInput, TextInput } from "@gravity-ui/uikit";
+import { Loader2, TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Pressable } from "@/components/animations/Pressable";
 import { FormField } from "@/components/forms/FormField";
 import { apiFetch } from "@/lib/api-client";
@@ -42,24 +45,27 @@ export function LoginForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-      {formError ? <Alert theme="danger" message={formError} /> : null}
+      {formError ? (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      ) : null}
 
       <Controller
         control={control}
         name="email"
         render={({ field, fieldState }) => (
-          <FormField label="Email" htmlFor="login-email" required>
-            <TextInput
+          <FormField label="Email" htmlFor="login-email" required error={fieldState.error?.message}>
+            <Input
               id="login-email"
-              size="l"
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
@@ -69,24 +75,29 @@ export function LoginForm() {
         control={control}
         name="password"
         render={({ field, fieldState }) => (
-          <FormField label="Password" htmlFor="login-password" required>
-            <PasswordInput
+          <FormField
+            label="Password"
+            htmlFor="login-password"
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
               id="login-password"
-              size="l"
+              type="password"
               placeholder="Your password"
               autoComplete="current-password"
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
       />
 
       <Pressable>
-        <Button type="submit" view="action" size="l" width="max" loading={isSubmitting}>
+        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
           Log in
         </Button>
       </Pressable>

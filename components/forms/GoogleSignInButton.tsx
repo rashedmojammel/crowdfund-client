@@ -6,7 +6,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Text } from "@gravity-ui/uikit";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ApiError, apiFetch } from "@/lib/api-client";
 import { useSessionStore } from "@/lib/store";
 import type { AuthResponse } from "@/types";
@@ -80,17 +81,22 @@ export function GoogleSignInButton() {
 
   return (
     <div className="flex flex-col gap-1">
-      <Button size="l" view="outlined" width="max" loading={loading} onClick={handleClick}>
-        <span className="flex items-center gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        size="lg"
+        className="w-full"
+        disabled={loading}
+        onClick={handleClick}
+      >
+        {loading ? (
+          <Loader2 className="animate-spin" aria-hidden="true" />
+        ) : (
           <GoogleLogo />
-          Continue with Google
-        </span>
+        )}
+        Continue with Google
       </Button>
-      {error ? (
-        <Text color="danger" variant="caption-2">
-          {error}
-        </Text>
-      ) : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

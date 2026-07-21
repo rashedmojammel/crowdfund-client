@@ -4,7 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Button, PasswordInput, Select, TextInput } from "@gravity-ui/uikit";
+import { Loader2, TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Pressable } from "@/components/animations/Pressable";
 import { FormField } from "@/components/forms/FormField";
 import { ImageUploader } from "@/components/forms/ImageUploader";
@@ -46,23 +56,31 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-      {formError ? <Alert theme="danger" message={formError} /> : null}
+      {formError ? (
+        <Alert variant="destructive">
+          <TriangleAlert />
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      ) : null}
 
       <Controller
         control={control}
         name="name"
         render={({ field, fieldState }) => (
-          <FormField label="Full name" htmlFor="register-name" required>
-            <TextInput
+          <FormField
+            label="Full name"
+            htmlFor="register-name"
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
               id="register-name"
-              size="l"
               placeholder="Samiha Noor"
               autoComplete="name"
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
@@ -72,18 +90,21 @@ export function RegisterForm() {
         control={control}
         name="email"
         render={({ field, fieldState }) => (
-          <FormField label="Email" htmlFor="register-email" required>
-            <TextInput
+          <FormField
+            label="Email"
+            htmlFor="register-email"
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
               id="register-email"
-              size="l"
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
@@ -93,17 +114,21 @@ export function RegisterForm() {
         control={control}
         name="password"
         render={({ field, fieldState }) => (
-          <FormField label="Password" htmlFor="register-password" required>
-            <PasswordInput
+          <FormField
+            label="Password"
+            htmlFor="register-password"
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
               id="register-password"
-              size="l"
+              type="password"
               placeholder="At least 8 characters, letters and numbers"
               autoComplete="new-password"
               value={field.value}
-              onUpdate={field.onChange}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
+              aria-invalid={fieldState.error ? true : undefined}
             />
           </FormField>
         )}
@@ -128,28 +153,31 @@ export function RegisterForm() {
         control={control}
         name="role"
         render={({ field, fieldState }) => (
-          <FormField label="Join as" required>
-            <Select
-              size="l"
-              width="max"
-              value={[field.value]}
-              onUpdate={(values) => field.onChange(values[0])}
-              validationState={fieldState.error ? "invalid" : undefined}
-              errorMessage={fieldState.error?.message}
-            >
-              <Select.Option value="supporter">
-                Supporter — back campaigns (50-credit welcome bonus)
-              </Select.Option>
-              <Select.Option value="creator">
-                Creator — launch campaigns (20-credit welcome bonus)
-              </Select.Option>
+          <FormField label="Join as" required error={fieldState.error?.message}>
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger
+                id="register-role"
+                className="w-full"
+                aria-invalid={fieldState.error ? true : undefined}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="supporter">
+                  Supporter — back campaigns (50-credit welcome bonus)
+                </SelectItem>
+                <SelectItem value="creator">
+                  Creator — launch campaigns (20-credit welcome bonus)
+                </SelectItem>
+              </SelectContent>
             </Select>
           </FormField>
         )}
       />
 
       <Pressable>
-        <Button type="submit" view="action" size="l" width="max" loading={isSubmitting}>
+        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
           Create account
         </Button>
       </Pressable>
