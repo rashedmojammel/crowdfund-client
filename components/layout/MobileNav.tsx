@@ -10,7 +10,7 @@ import { getDashboardNav, isNavItemActive } from "@/components/layout/dashboard-
 import { SIGNATURE_EASE } from "@/components/animations/FadeIn";
 import { useDismissable } from "@/hooks/useDismissable";
 import { useSessionStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 /** Hamburger + slide-in drawer for dashboard navigation under 768px. */
 export function MobileNav() {
@@ -72,7 +72,7 @@ export function MobileNav() {
                 <Link
                   href="/"
                   onClick={() => setOpen(false)}
-                  className="text-xl font-bold"
+                  className={cn("rounded text-xl font-bold", FOCUS_RING)}
                   aria-label="FundSpark home"
                 >
                   Fund<span className="text-primary">Spark</span>
@@ -100,7 +100,8 @@ export function MobileNav() {
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                         active
                           ? "bg-accent font-semibold text-accent-foreground"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                        FOCUS_RING
                       )}
                     >
                       <item.icon className="size-4" aria-hidden="true" />

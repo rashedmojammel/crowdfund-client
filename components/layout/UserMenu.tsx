@@ -9,6 +9,7 @@ import { House, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDismissable } from "@/hooks/useDismissable";
 import { useSessionStore } from "@/lib/store";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 const initials = (name: string) =>
   name
@@ -45,7 +46,7 @@ export function UserMenu() {
         aria-label={`Account menu for ${user.name}`}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="flex cursor-pointer items-center rounded-full"
+        className={cn("flex cursor-pointer items-center rounded-full", FOCUS_RING)}
       >
         <Avatar>
           <AvatarImage src={user.image} alt="" />
@@ -72,7 +73,10 @@ export function UserMenu() {
               <Link
                 href="/"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted",
+                  FOCUS_RING
+                )}
               >
                 <House className="size-4" aria-hidden="true" />
                 Back to FundSpark
@@ -80,7 +84,10 @@ export function UserMenu() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-muted"
+                className={cn(
+                  "flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-muted",
+                  FOCUS_RING
+                )}
               >
                 <LogOut className="size-4" aria-hidden="true" />
                 Log out

@@ -12,6 +12,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SIGNATURE_EASE } from "@/components/animations/FadeIn";
 import { Pressable } from "@/components/animations/Pressable";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 const slides = [
   {
@@ -132,9 +133,11 @@ export function AnimatedHero() {
               onClick={() => setIndex(i)}
               aria-label={`Show headline ${i + 1} of ${slides.length}`}
               aria-current={i === index}
-              className={`h-1.5 rounded-full transition-all ${
-                i === index ? "w-6 bg-primary" : "w-1.5 bg-border hover:bg-muted-foreground"
-              }`}
+              className={cn(
+                "h-1.5 rounded-full transition-all",
+                i === index ? "w-6 bg-primary" : "w-1.5 bg-border hover:bg-muted-foreground",
+                FOCUS_RING
+              )}
             />
           ))}
         </div>

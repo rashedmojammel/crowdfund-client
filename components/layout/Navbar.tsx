@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useSessionStore } from "@/lib/store";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 const initials = (name: string) =>
   name
@@ -29,19 +30,29 @@ export function Navbar() {
     <header className="sticky top-0 z-40 border-b bg-background">
       <div className="container-fs flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-bold" aria-label="FundSpark home">
+          <Link
+            href="/"
+            className={cn("rounded text-xl font-bold", FOCUS_RING)}
+            aria-label="FundSpark home"
+          >
             Fund<span className="text-primary">Spark</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
             <Link
               href="/"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className={cn(
+                "rounded text-muted-foreground transition-colors hover:text-foreground",
+                FOCUS_RING
+              )}
             >
               Home
             </Link>
             <Link
               href="/explore"
-              className="text-muted-foreground transition-colors hover:text-foreground"
+              className={cn(
+                "rounded text-muted-foreground transition-colors hover:text-foreground",
+                FOCUS_RING
+              )}
             >
               Explore
             </Link>

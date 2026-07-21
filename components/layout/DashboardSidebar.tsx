@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { getDashboardNav, isNavItemActive } from "@/components/layout/dashboard-nav";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { useSessionStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 /** Desktop role-based navigation — MobileNav covers screens under 768px. */
 export function DashboardSidebar() {
@@ -28,7 +28,7 @@ export function DashboardSidebar() {
         <div className="flex h-16 items-center border-b px-4">
           <Link
             href="/"
-            className="flex items-center gap-2 overflow-hidden text-xl font-bold"
+            className={cn("flex items-center gap-2 overflow-hidden text-xl font-bold", FOCUS_RING)}
             aria-label="FundSpark home"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm text-primary-foreground">
@@ -58,7 +58,8 @@ export function DashboardSidebar() {
                   collapsed && "justify-center px-0",
                   active
                     ? "bg-accent font-semibold text-accent-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  FOCUS_RING
                 )}
               >
                 <item.icon className="size-4 shrink-0" aria-hidden="true" />
@@ -83,7 +84,10 @@ export function DashboardSidebar() {
               <TooltipTrigger asChild>
                 <Link
                   href="/"
-                  className="flex items-center justify-center rounded-lg px-0 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  className={cn(
+                    "flex items-center justify-center rounded-lg px-0 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                    FOCUS_RING
+                  )}
                 >
                   <ArrowLeft className="size-4" aria-hidden="true" />
                 </Link>
@@ -93,7 +97,10 @@ export function DashboardSidebar() {
           ) : (
             <Link
               href="/"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                FOCUS_RING
+              )}
             >
               <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
               Back to FundSpark

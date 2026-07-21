@@ -10,6 +10,7 @@ import { RoleBadge } from "@/components/dashboard/RoleBadge";
 import { useCommandPaletteStore } from "@/lib/command-palette-store";
 import { formatNumber } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 /** Available credits + notification bell + account menu, on every dashboard page. */
 export function DashboardTopBar() {
@@ -30,7 +31,10 @@ export function DashboardTopBar() {
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="hidden items-center gap-2 rounded-lg border bg-muted px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent sm:flex"
+            className={cn(
+              "hidden items-center gap-2 rounded-lg border bg-muted px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent sm:flex",
+              FOCUS_RING
+            )}
           >
             <Search className="size-3.5" aria-hidden="true" />
             Jump to…

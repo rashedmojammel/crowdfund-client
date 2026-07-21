@@ -5,6 +5,7 @@ import { Cpu, GraduationCap, HeartPulse, Palette, TreeDeciduous, Users, type Luc
 import { FadeIn } from "@/components/animations/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
 import { CATEGORIES } from "@/lib/constants";
+import { cn, FOCUS_RING } from "@/lib/utils";
 import type { CampaignCategory } from "@/types";
 
 const categoryIcons: Record<CampaignCategory, LucideIcon> = {
@@ -33,7 +34,10 @@ export function ExploreByCategory() {
             <StaggerItem key={category.value} className="h-full">
               <Link
                 href={`/explore?category=${category.value}`}
-                className="card-elevate flex h-full flex-col items-center gap-3 rounded-xl bg-card p-6 text-center"
+                className={cn(
+                  "card-elevate flex h-full flex-col items-center gap-3 rounded-xl bg-card p-6 text-center",
+                  FOCUS_RING
+                )}
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                   <CategoryIcon className="size-6" aria-hidden="true" />

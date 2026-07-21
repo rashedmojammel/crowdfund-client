@@ -4,6 +4,7 @@ import { FadeIn } from "@/components/animations/FadeIn";
 import { DemoAccountsCallout } from "@/components/forms/DemoAccountsCallout";
 import { LoginForm } from "@/components/forms/LoginForm";
 import { GoogleSignInButton } from "@/components/forms/GoogleSignInButton";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Log in — FundSpark",
@@ -15,15 +16,17 @@ export default function LoginPage() {
       <FadeIn className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1>Welcome back</h1>
-          <p className="mt-2 text-sm opacity-70">Log in to continue to your dashboard.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Log in to continue to your dashboard.
+          </p>
         </div>
 
         <LoginForm />
 
-        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wide opacity-50">
-          <span className="h-px grow bg-current" aria-hidden="true" />
+        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground/70">
+          <span className="h-px grow bg-border" aria-hidden="true" />
           or
-          <span className="h-px grow bg-current" aria-hidden="true" />
+          <span className="h-px grow bg-border" aria-hidden="true" />
         </div>
 
         <GoogleSignInButton />
@@ -32,9 +35,12 @@ export default function LoginPage() {
           <DemoAccountsCallout />
         </div>
 
-        <p className="mt-6 text-center text-sm opacity-80">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           New to FundSpark?{" "}
-          <Link href="/register" className="font-medium underline underline-offset-4">
+          <Link
+            href="/register"
+            className={cn("font-medium underline underline-offset-4", FOCUS_RING)}
+          >
             Create an account
           </Link>
         </p>

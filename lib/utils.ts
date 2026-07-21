@@ -10,6 +10,15 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Visible focus-visible ring for hand-rolled interactive elements (plain
+ * <Link>/<button>, not shadcn's Button/Input/etc — those already ship
+ * their own ring-[3px] treatment). Append via cn(...) alongside hover
+ * classes. Every interactive element must have one or the other.
+ */
+export const FOCUS_RING =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
 export const CREDITS_PER_USD_BUY = 10;
 export const CREDITS_PER_USD_WITHDRAW = 20;
 export const MIN_WITHDRAWAL_CREDITS = 200;

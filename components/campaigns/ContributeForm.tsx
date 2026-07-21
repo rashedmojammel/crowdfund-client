@@ -15,6 +15,7 @@ import { FormField } from "@/components/forms/FormField";
 import { apiFetch } from "@/lib/api-client";
 import { useSessionStore } from "@/lib/store";
 import { formatCredits } from "@/lib/format";
+import { cn, FOCUS_RING } from "@/lib/utils";
 import { contributionSchema, type ContributionInput } from "@/lib/validators";
 import type { Campaign, Contribution } from "@/types";
 
@@ -82,7 +83,10 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
             <Link href="/login">Log in</Link>
           </Button>
         </Pressable>
-        <Link href="/register" className="text-sm font-medium underline underline-offset-4">
+        <Link
+          href="/register"
+          className={cn("rounded text-sm font-medium underline underline-offset-4", FOCUS_RING)}
+        >
           Create an account
         </Link>
       </div>

@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/campaigns/ProgressBar";
 import { BLUR_DATA_URL } from "@/lib/constants";
+import { cn, FOCUS_RING } from "@/lib/utils";
 import type { Campaign } from "@/types";
 
 interface CampaignCardProps {
@@ -36,7 +37,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
     >
       <Link
         href={`/campaigns/${campaign.id}`}
-        className="flex h-full flex-col"
+        className={cn("flex h-full flex-col rounded-xl", FOCUS_RING)}
         aria-label={`View details of ${campaign.title}`}
       >
         <div className="relative aspect-video overflow-hidden">

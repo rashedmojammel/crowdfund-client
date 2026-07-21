@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
 import { apiFetch } from "@/lib/api-client";
+import { cn, FOCUS_RING } from "@/lib/utils";
 import type { Campaign } from "@/types";
 
 export function TopFundedCampaigns() {
@@ -27,7 +28,7 @@ export function TopFundedCampaigns() {
               closing in on their goals.
             </p>
           </div>
-          <Link href="/explore" className="text-sm font-medium text-primary">
+          <Link href="/explore" className={cn("rounded text-sm font-medium text-primary", FOCUS_RING)}>
             View all campaigns →
           </Link>
         </div>

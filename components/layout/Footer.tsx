@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FacebookIcon, LinkedinIcon, TelegramIcon } from "@/components/layout/social-icons";
+import { cn, FOCUS_RING } from "@/lib/utils";
 
 const exploreLinks = [
   { href: "/explore", label: "All campaigns" },
@@ -32,7 +33,7 @@ export function Footer() {
 
       <div className="container-fs grid gap-10 py-16 md:grid-cols-4 md:gap-8">
         <div className="md:col-span-2">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold">
+          <Link href="/" className={cn("flex w-fit items-center gap-2 text-xl font-bold", FOCUS_RING)}>
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm text-primary-foreground">
               F
             </span>
@@ -51,7 +52,10 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="flex size-9 items-center justify-center rounded-full border text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className={cn(
+                  "flex size-9 items-center justify-center rounded-full border text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary",
+                  FOCUS_RING
+                )}
               >
                 <SocialIcon className="size-4" aria-hidden="true" />
               </a>
@@ -68,7 +72,10 @@ export function Footer() {
               <li key={href}>
                 <Link
                   href={href}
-                  className="rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className={cn(
+                    "rounded text-muted-foreground transition-colors hover:text-foreground",
+                    FOCUS_RING
+                  )}
                 >
                   {label}
                 </Link>
@@ -86,7 +93,10 @@ export function Footer() {
               <li key={href}>
                 <Link
                   href={href}
-                  className="rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className={cn(
+                    "rounded text-muted-foreground transition-colors hover:text-foreground",
+                    FOCUS_RING
+                  )}
                 >
                   {label}
                 </Link>
