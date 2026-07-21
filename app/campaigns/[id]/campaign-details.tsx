@@ -8,6 +8,7 @@ import { FadeIn } from "@/components/animations/FadeIn";
 import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge";
 import { ContributeForm } from "@/components/campaigns/ContributeForm";
 import { ProgressBar } from "@/components/campaigns/ProgressBar";
+import { ReportCampaignButton } from "@/components/campaigns/ReportCampaignButton";
 import { apiFetch } from "@/lib/api-client";
 import { BLUR_DATA_URL } from "@/lib/constants";
 import { daysLeft, formatCredits, formatDate, formatNumber } from "@/lib/format";
@@ -147,6 +148,8 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
             <div className="card-elevate rounded-xl bg-[var(--g-color-base-float)] p-4 md:p-6">
               <ContributeForm campaign={campaign} />
             </div>
+
+            <ReportCampaignButton campaign={campaign} />
 
             <Button view="flat" size="m" href="/explore">
               ← Back to all campaigns

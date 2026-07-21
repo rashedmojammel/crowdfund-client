@@ -78,6 +78,24 @@ export const withdrawalSchema = z.object({
 
 export type WithdrawalInput = z.infer<typeof withdrawalSchema>;
 
+export const REPORT_REASONS = [
+  "Misleading financial claims",
+  "Suspected scam",
+  "Copyright concern",
+  "Duplicate campaign",
+  "Inappropriate content",
+  "Other",
+] as const;
+
+export const reportSchema = z.object({
+  reason: z.enum(REPORT_REASONS, { message: "Pick a reason" }),
+  details: z
+    .string()
+    .min(20, "Give the review team at least 20 characters of detail to work with"),
+});
+
+export type ReportInput = z.infer<typeof reportSchema>;
+
 /** Kept as a string for the input field; parse with Number() after validation. */
 export const contributionSchema = z.object({
   amount: z
