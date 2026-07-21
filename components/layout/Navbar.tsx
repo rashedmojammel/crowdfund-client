@@ -1,8 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar, Button, Label, Skeleton } from "@gravity-ui/uikit";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useSessionStore } from "@/lib/store";
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 /**
  * Role-aware top navigation. The auth area renders a fixed-size skeleton
@@ -14,42 +26,55 @@ export function Navbar() {
   const hasHydrated = useSessionStore((s) => s.hasHydrated);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--g-color-line-generic)] bg-[var(--g-color-base-background)]">
-      <div className="container-page flex h-16 items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 border-b bg-background">
+      <div className="container-fs flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="text-xl font-bold" aria-label="FundSpark home">
-            Fund<span className="text-[var(--g-color-text-brand)]">Spark</span>
+            Fund<span className="text-primary">Spark</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            <Link href="/" className="opacity-80 transition-opacity hover:opacity-100">
+            <Link
+              href="/"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
               Home
             </Link>
-            <Link href="/explore" className="opacity-80 transition-opacity hover:opacity-100">
+            <Link
+              href="/explore"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
               Explore
             </Link>
           </nav>
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           {!hasHydrated ? (
-            <Skeleton className="h-8 w-40 rounded-lg" />
+            <Skeleton className="h-9 w-40 rounded-lg" />
           ) : user ? (
             <>
-              <span className="hidden sm:block">
-                <Label theme="success">{user.credits.toLocaleString("en-US")} credits</Label>
-              </span>
-              <Button view="action" size="m" href="/dashboard">
-                Dashboard
+              <Badge
+                variant="outline"
+                className="hidden border-[var(--fs-success)]/40 text-[var(--fs-success)] sm:inline-flex"
+              >
+                {user.credits.toLocaleString("en-US")} credits
+              </Badge>
+              <Button asChild size="sm">
+                <Link href="/dashboard">Dashboard</Link>
               </Button>
-              <Avatar imgUrl={user.image} text={user.name} size="m" aria-label={user.name} />
+              <Avatar aria-label={user.name}>
+                <AvatarImage src={user.image} alt="" />
+                <AvatarFallback>{initials(user.name)}</AvatarFallback>
+              </Avatar>
             </>
           ) : (
             <>
-              <Button view="flat" size="m" href="/login">
-                Log in
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">Log in</Link>
               </Button>
-              <Button view="action" size="m" href="/register">
-                Get started
+              <Button asChild size="sm">
+                <Link href="/register">Get started</Link>
               </Button>
             </>
           )}
