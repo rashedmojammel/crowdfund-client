@@ -10,12 +10,13 @@ Read ARCHITECTURE.md for the full folder plan and business rules.
 - Credit rates: 10 credits = $1 (buy), 20 credits = $1 (withdraw).
 - Signup bonuses (50 supporter, 20 creator) are granted exactly once — server enforces.
 - All API calls to the server go through lib/api-client.ts (attaches JWT).
-- Use Gravity UI components (@gravity-ui/uikit) for UI, motion for animations, Swiper for sliders.
+- Use Tailwind CSS v4 + shadcn/ui components (New York style) for UI — richer blocks may come from the 21st.dev registry. Use motion for animations, Swiper for sliders, lucide-react for icons, sonner for toasts.
 - Every state change on the server should trigger a notification for the affected user.
 
 ## Tech stack
-Next.js 15 App Router, TypeScript, BetterAuth, Gravity UI, Framer Motion (motion),
-Swiper, TanStack Query, React Hook Form + Zod, Stripe.js, ImgBB for uploads.
+Next.js App Router, TypeScript, BetterAuth, Tailwind CSS v4 + shadcn/ui (+ 21st.dev
+registry), lucide-react, sonner, Framer Motion (motion), Swiper, TanStack Query,
+React Hook Form + Zod, Stripe.js, ImgBB for uploads.
 
 ## Commit style
 Small, focused commits. Prefix with feat: / fix: / chore: / refactor:.
@@ -26,9 +27,11 @@ Every component, page, and screen you build must follow these rules. No exceptio
 
 ### Visual language
 
-- **Design system:** Gravity UI (`@gravity-ui/uikit`) is the source of truth for buttons, inputs, modals, tables, and typography. Use its components before reaching for custom ones.
-- **Colors:** Use Gravity UI CSS variables (`var(--g-color-base-background)`, `var(--g-color-text-primary)`, `var(--g-color-line-generic)`, etc.). Never hardcode hex values in components.
-- **Accent color:** Use `view="action"` on Gravity UI buttons for primary CTAs. Never invent brand colors inline.
+- **Design system:** Tailwind CSS v4 + shadcn/ui (New York style, `components/ui/`) is the source of truth for buttons, inputs, modals, tables, and typography. Use shadcn primitives (or 21st.dev registry blocks) before reaching for custom ones. Icons come from lucide-react; toasts from sonner.
+- **Colors:** Use the FundSpark tokens through Tailwind's semantic classes (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-card`, `bg-primary`, `text-destructive`, …) which map to the `--fs-*` variables in globals.css. Never hardcode hex values in components — new swatches go into the `--fs-*` palette first.
+- **Accent color:** The warm coral `--fs-accent` is `primary`. Use the default shadcn `<Button>` variant for primary CTAs. Never invent brand colors inline.
+- **Dark mode:** Toggled by adding/removing the `.dark` class on `<html>` (persisted in `localStorage("fundspark-theme")` via `hooks/useTheme.ts`) — NOT a data-theme attribute. Every component must look right in both themes.
+- **Fonts:** Inter (`--font-sans`) for UI and body, Fraunces (`--font-display`) for h1/display headlines — both loaded via next/font.
 - **Spacing:** Use a 4px base unit — 4, 8, 12, 16, 24, 32, 48, 64. No arbitrary values like 13px or 27px.
 - **Border radius:** Cards and modals use `border-radius: 12px`. Inputs use `border-radius: 8px`. Buttons use Gravity UI defaults.
 - **Shadows:** Use one of three levels only:
@@ -40,7 +43,7 @@ Every component, page, and screen you build must follow these rules. No exceptio
 
 ### Layout
 
-- **Container width:** Max 1200px, horizontal padding 20px mobile / 32px tablet+.
+- **Container width:** Max 1200px, horizontal padding 20px mobile / 32px tablet+ (use the `.container-fs` utility).
 - **Grids:** Campaign grids are 1 column under 640px, 2 columns 640–1024px, 3 columns 1024px+. Stats grids are 2 columns mobile, 4 columns desktop.
 - **Responsive-first:** Every new component must be tested mentally at 375px (mobile), 768px (tablet), and 1280px (desktop). If it breaks at any of these, redesign — don't ship it broken and fix later.
 - **Whitespace over borders:** Prefer padding and margin over visible borders to separate content. Use borders only where structurally necessary (input fields, table cells, section dividers).
@@ -74,7 +77,7 @@ Every component, page, and screen you build must follow these rules. No exceptio
 
 ### Tables
 
-- **Row hover:** Subtle background color change (`var(--g-color-base-simple-hover)`), no animation.
+- **Row hover:** Subtle background color change (`hover:bg-muted/50`), no animation.
 - **Sortable headers:** Small arrow indicator, cursor pointer on hover.
 - **Row actions:** Right-aligned in the last column. Use icon buttons with tooltips, not full-width labels.
 - **Empty rows:** When a table has fewer than 5 rows, don't pad it out with empty rows. Just show what's there.
@@ -107,6 +110,6 @@ Every component, page, and screen you build must follow these rules. No exceptio
 - Prefer restraint over decoration.
 - Prefer whitespace over borders.
 - Prefer subtle motion over dramatic motion.
-- Prefer the Gravity UI default over custom styling.
+- Prefer the shadcn/ui default over custom styling.
 - Prefer one strong animation over five weak ones.
 

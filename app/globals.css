@@ -1,93 +1,86 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--fs-bg);
+  --color-foreground: var(--fs-text);
+  --color-card: var(--fs-bg-elevated);
+  --color-card-foreground: var(--fs-text);
+  --color-popover: var(--fs-bg-elevated);
+  --color-popover-foreground: var(--fs-text);
+  --color-primary: var(--fs-accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--fs-bg-subtle);
+  --color-secondary-foreground: var(--fs-text);
+  --color-muted: var(--fs-bg-subtle);
+  --color-muted-foreground: var(--fs-text-muted);
+  --color-accent: var(--fs-accent-subtle);
+  --color-accent-foreground: var(--fs-accent);
+  --color-destructive: var(--fs-danger);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--fs-border);
+  --color-input: var(--fs-border-strong);
+  --color-ring: var(--fs-focus-ring);
+  --color-success: var(--fs-success);
+  --color-warning: var(--fs-warning);
+  --radius: 0.75rem;
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --fs-bg: #fafaf7;
+  --fs-bg-elevated: #ffffff;
+  --fs-bg-subtle: #f2f0ea;
+  --fs-border: #e8e4da;
+  --fs-border-strong: #d6d0c2;
+  --fs-text: #1a1a1a;
+  --fs-text-secondary: #5c5a54;
+  --fs-text-muted: #8a8780;
+  --fs-accent: #e85d3a;
+  --fs-accent-hover: #d14a29;
+  --fs-accent-subtle: #fbede8;
+  --fs-success: #2f855a;
+  --fs-warning: #c05621;
+  --fs-danger: #c53030;
+  --fs-focus-ring: rgba(232, 93, 58, 0.5);
 }
 
-body {
-  /* Follow Gravity UI's theme variables so components and page background
-     agree in both light and dark mode; fall back to our own vars. */
-  background: var(--g-color-base-background, var(--background));
-  color: var(--g-color-text-primary, var(--foreground));
-  font-family: var(--g-font-family-sans, Arial, Helvetica, sans-serif);
-  font-size: 16px;
-  line-height: 1.6;
+.dark {
+  --fs-bg: #12110f;
+  --fs-bg-elevated: #1c1b18;
+  --fs-bg-subtle: #26241f;
+  --fs-border: #2e2c27;
+  --fs-border-strong: #45423b;
+  --fs-text: #f5f2ea;
+  --fs-text-secondary: #b8b4a8;
+  --fs-text-muted: #7a776f;
+  --fs-accent: #f27a5a;
+  --fs-accent-hover: #e85d3a;
+  --fs-accent-subtle: rgba(242, 122, 90, 0.14);
+  --fs-success: #48bb78;
+  --fs-warning: #ed8936;
+  --fs-danger: #fc8181;
+  --fs-focus-ring: rgba(242, 122, 90, 0.55);
 }
 
-/* Layout container from CLAUDE.md — max 1200px, 20px/32px side padding. */
-.container-page {
-  width: 100%;
-  max-width: 1200px;
-  margin-inline: auto;
-  padding-inline: 20px;
-}
-@media (min-width: 640px) {
-  .container-page {
-    padding-inline: 32px;
-  }
-}
-
-/* The three sanctioned shadow levels (CLAUDE.md). */
-.card-elevate {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.2s ease;
-}
-.card-elevate:hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 2px 4px rgba(0, 0, 0, 0.06);
-}
-.shadow-modal {
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
-}
-/* Rest-level shadow for non-interactive cards (no hover upgrade). */
-.shadow-card {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-/* Skeleton pulse per CLAUDE.md: opacity 0.4 ↔ 0.7 over 1.5s. */
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-.skeleton-pulse {
-  background: var(--g-color-base-generic-medium);
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-}
-
-/* Hero slider pagination bullets sit on photos — keep them white. */
-.hero-swiper {
-  --swiper-theme-color: #ffffff;
-  --swiper-pagination-bullet-inactive-color: rgba(255, 255, 255, 0.6);
-  --swiper-pagination-bullet-inactive-opacity: 1;
-}
-
-/* Typography scale from CLAUDE.md — headings 700, fixed sizes/line-heights. */
 @layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  h1,
+  .display {
+    font-family: var(--font-display);
+  }
+  /* Typography scale (CLAUDE.md) — headings 700, fixed sizes/line-heights. */
   h1 {
     font-size: 40px;
     line-height: 1.2;
@@ -108,4 +101,58 @@ body {
     line-height: 1.4;
     font-weight: 700;
   }
+}
+
+.container-fs {
+  @apply mx-auto w-full max-w-[1200px] px-5 md:px-8;
+}
+
+/* ------------------------------------------------------------------------
+   LEGACY COMPATIBILITY — used by components still awaiting the shadcn
+   migration (Prompt 2). Delete this whole block once no component
+   references these classes.
+   ------------------------------------------------------------------------ */
+
+.container-page {
+  @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8;
+}
+
+.card-elevate {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+.card-elevate:hover {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+}
+.shadow-card {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.shadow-modal {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+.skeleton-pulse {
+  background: var(--fs-bg-subtle);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.hero-swiper {
+  --swiper-theme-color: #ffffff;
+  --swiper-pagination-bullet-inactive-color: rgba(255, 255, 255, 0.6);
+  --swiper-pagination-bullet-inactive-opacity: 1;
 }
