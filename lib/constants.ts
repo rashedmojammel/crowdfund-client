@@ -1,5 +1,7 @@
 import type { CampaignCategory } from "@/types";
 
+// Matches CAMPAIGN_CATEGORIES on the real server exactly — the server's
+// createCampaignSchema enum rejects anything else.
 export const CATEGORIES: Array<{
   value: CampaignCategory;
   label: string;
@@ -9,6 +11,11 @@ export const CATEGORIES: Array<{
     value: "technology",
     label: "Technology",
     blurb: "Games, hardware, and open-source tools",
+  },
+  {
+    value: "art",
+    label: "Art",
+    blurb: "Crafts, film, and cultural heritage",
   },
   {
     value: "education",
@@ -21,19 +28,14 @@ export const CATEGORIES: Array<{
     blurb: "Clinics, equipment, and care access",
   },
   {
-    value: "environment",
-    label: "Environment",
-    blurb: "Rivers, forests, and clean energy",
-  },
-  {
     value: "community",
     label: "Community",
     blurb: "Neighbourhood projects and animal welfare",
   },
   {
-    value: "creative",
-    label: "Creative",
-    blurb: "Crafts, film, and cultural heritage",
+    value: "environment",
+    label: "Environment",
+    blurb: "Rivers, forests, and clean energy",
   },
 ];
 

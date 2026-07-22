@@ -23,9 +23,11 @@ export const CREDITS_PER_USD_BUY = 10;
 export const CREDITS_PER_USD_WITHDRAW = 20;
 export const MIN_WITHDRAWAL_CREDITS = 200;
 
+// Must match CREDIT_PACKAGES on the real server exactly (credits + amountUsd
+// pairs) — POST /payments rejects any pair that isn't one of these four.
 export const CREDIT_PACKAGES = [
   { id: "starter", name: "Starter", credits: 100, priceUsd: 10 },
-  { id: "backer", name: "Backer", credits: 250, priceUsd: 25 },
-  { id: "champion", name: "Champion", credits: 500, priceUsd: 50 },
-  { id: "patron", name: "Patron", credits: 1000, priceUsd: 100 },
+  { id: "backer", name: "Backer", credits: 300, priceUsd: 25 },
+  { id: "champion", name: "Champion", credits: 800, priceUsd: 60 },
+  { id: "patron", name: "Patron", credits: 1500, priceUsd: 110 },
 ] as const;
