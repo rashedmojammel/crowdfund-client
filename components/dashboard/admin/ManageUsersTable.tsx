@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Avatar, Button, Icon } from "@gravity-ui/uikit";
 import { Persons, TrashBin } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { RoleDropdown } from "@/components/dashboard/admin/RoleDropdown";
@@ -31,6 +32,9 @@ export function ManageUsersTable() {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       setDeleting(null);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't delete this user");
     },
   });
 

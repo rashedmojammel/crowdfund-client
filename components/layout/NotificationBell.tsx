@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Loader2, TriangleAlert } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDismissable } from "@/hooks/useDismissable";
@@ -51,6 +52,9 @@ export function NotificationBell() {
         body: { ids: (notifications ?? []).filter((n) => !n.read).map((n) => n._id) },
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't mark notifications read");
+    },
   });
 
   const count = unread?.count ?? 0;

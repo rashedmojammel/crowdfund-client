@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, Label } from "@gravity-ui/uikit";
 import { CircleDollar } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -32,6 +33,9 @@ export function WithdrawalRequestsTable() {
       queryClient.invalidateQueries({ queryKey: ["withdrawals"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       setPaying(null);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't mark this withdrawal paid");
     },
   });
 

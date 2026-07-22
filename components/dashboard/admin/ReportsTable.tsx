@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, Icon, Label } from "@gravity-ui/uikit";
 import { Ban, Flag, TrashBin, Xmark } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -51,6 +52,9 @@ export function ReportsTable() {
       invalidate();
       setConfirming(null);
     },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't suspend this campaign");
+    },
   });
 
   const removeCampaign = useMutation({
@@ -63,12 +67,18 @@ export function ReportsTable() {
       invalidate();
       setConfirming(null);
     },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't delete this campaign");
+    },
   });
 
   const dismiss = useMutation({
     mutationFn: (report: Report) =>
       apiFetch(`/reports/${report._id}`, { method: "PATCH", body: { action: "dismiss" } }),
     onSuccess: invalidate,
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't dismiss this report");
+    },
   });
 
   const columns: Array<DataTableColumn<Report>> = [

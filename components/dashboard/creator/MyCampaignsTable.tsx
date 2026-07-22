@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, Icon } from "@gravity-ui/uikit";
 import { CirclePlus, Pencil, TrashBin } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -35,6 +36,9 @@ export function MyCampaignsTable() {
       queryClient.invalidateQueries({ queryKey: ["contributions"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       setDeleting(null);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't delete this campaign");
     },
   });
 

@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Select } from "@gravity-ui/uikit";
+import { toast } from "sonner";
 import { apiFetch } from "@/lib/api-client";
 import { useSessionStore } from "@/lib/store";
 import type { AdminUserRow, UserRole } from "@/types";
@@ -32,6 +33,9 @@ export function RoleDropdown({ user }: RoleDropdownProps) {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't change this user's role");
     },
   });
 
