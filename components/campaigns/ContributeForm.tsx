@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, Info, Lock, Loader2, TriangleAlert } from "lucide-react";
+import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,15 +52,24 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
         method: "POST",
         body: { campaignId: campaign._id, amount },
       }),
-    onSuccess: () => {
+    // Optimistic: show the success state and clear the form immediately —
+    // don't make the supporter wait on a round trip to know it went through.
+    onMutate: () => {
       setSubmitted(true);
       reset();
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["campaign", campaign._id] });
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       // Otherwise My Contributions and the supporter stats cards keep
       // showing pre-contribution data until an unrelated refetch happens.
       queryClient.invalidateQueries({ queryKey: ["contributions"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
+    },
+    // Roll back the optimistic success state if the server rejects it.
+    onError: (error) => {
+      setSubmitted(false);
+      toast.error(error instanceof Error ? error.message : "Contribution failed — try again");
     },
   });
 
@@ -135,9 +145,8 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
     );
   }
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit((values) => {
     setFormError(null);
-    setSubmitted(false);
     const amount = Number(values.amount);
     if (amount > user.credits) {
       setFormError(
@@ -145,11 +154,7 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
       );
       return;
     }
-    try {
-      await mutation.mutateAsync(amount);
-    } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Contribution failed — try again");
-    }
+    mutation.mutate(amount);
   });
 
   return (
@@ -216,8 +221,15 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
       </p>
 
       <Pressable>
-        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={isSubmitting || mutation.isPending}
+        >
+          {isSubmitting || mutation.isPending ? (
+            <Loader2 className="animate-spin" aria-hidden="true" />
+          ) : null}
           Contribute
         </Button>
       </Pressable>
