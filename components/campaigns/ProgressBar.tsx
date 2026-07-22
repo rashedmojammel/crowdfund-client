@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { percentFunded } from "@/lib/format";
 
 interface ProgressBarProps {
   raised: number;
@@ -13,7 +14,7 @@ interface ProgressBarProps {
  */
 export function ProgressBar({ raised, goal }: ProgressBarProps) {
   const reduceMotion = useReducedMotion();
-  const percent = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+  const percent = percentFunded(raised, goal);
 
   return (
     <div
