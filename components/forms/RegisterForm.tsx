@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, TriangleAlert } from "lucide-react";
+import { Check, Loader2, TriangleAlert, X } from "lucide-react";
+import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export function RegisterForm() {
   const {
     control,
     handleSubmit,
+    setError,
     formState: { isSubmitting },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -46,7 +48,14 @@ export function RegisterForm() {
       image: values.image || undefined,
     });
     if (error) {
-      setFormError(error.message ?? "Registration failed — try again");
+      const message = error.message ?? "Registration failed — try again";
+      // Map the "email already exists" case to the field it's actually
+      // about instead of a generic top-of-form banner.
+      if (/already (exists|registered|in use)|exist/i.test(message)) {
+        setError("email", { message });
+      } else {
+        setFormError(message);
+      }
       return;
     }
     try {
@@ -61,6 +70,7 @@ export function RegisterForm() {
     } catch {
       // Non-fatal — the dashboard layout retries this once the session loads.
     }
+    toast.success("Account created — welcome to FundSpark!");
     router.push("/dashboard");
   });
 
@@ -123,25 +133,64 @@ export function RegisterForm() {
       <Controller
         control={control}
         name="password"
-        render={({ field, fieldState }) => (
-          <FormField
-            label="Password"
-            htmlFor="register-password"
-            required
-            error={fieldState.error?.message}
-          >
-            <Input
-              id="register-password"
-              type="password"
-              placeholder="At least 8 characters, letters and numbers"
-              autoComplete="new-password"
-              value={field.value}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              aria-invalid={fieldState.error ? true : undefined}
-            />
-          </FormField>
-        )}
+        render={({ field, fieldState }) => {
+          const hasLength = field.value.length >= 8;
+          const hasLetter = /[A-Za-z]/.test(field.value);
+          const hasNumber = /[0-9]/.test(field.value);
+          return (
+            <FormField
+              label="Password"
+              htmlFor="register-password"
+              required
+              error={fieldState.error?.message}
+            >
+              <Input
+                id="register-password"
+                type="password"
+                placeholder="At least 8 characters, letters and numbers"
+                autoComplete="new-password"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                aria-invalid={fieldState.error ? true : undefined}
+              />
+              {field.value ? (
+                <ul className="flex flex-col gap-1 text-sm">
+                  <li
+                    className={`flex items-center gap-1.5 ${hasLength ? "text-success" : "text-muted-foreground"}`}
+                  >
+                    {hasLength ? (
+                      <Check className="size-3.5 shrink-0" aria-hidden="true" />
+                    ) : (
+                      <X className="size-3.5 shrink-0" aria-hidden="true" />
+                    )}
+                    At least 8 characters
+                  </li>
+                  <li
+                    className={`flex items-center gap-1.5 ${hasLetter ? "text-success" : "text-muted-foreground"}`}
+                  >
+                    {hasLetter ? (
+                      <Check className="size-3.5 shrink-0" aria-hidden="true" />
+                    ) : (
+                      <X className="size-3.5 shrink-0" aria-hidden="true" />
+                    )}
+                    Includes a letter
+                  </li>
+                  <li
+                    className={`flex items-center gap-1.5 ${hasNumber ? "text-success" : "text-muted-foreground"}`}
+                  >
+                    {hasNumber ? (
+                      <Check className="size-3.5 shrink-0" aria-hidden="true" />
+                    ) : (
+                      <X className="size-3.5 shrink-0" aria-hidden="true" />
+                    )}
+                    Includes a number
+                  </li>
+                </ul>
+              ) : null}
+            </FormField>
+          );
+        }}
       />
 
       <Controller
@@ -188,7 +237,7 @@ export function RegisterForm() {
       <Pressable>
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-          Create account
+          {isSubmitting ? "Creating…" : "Create account"}
         </Button>
       </Pressable>
     </form>

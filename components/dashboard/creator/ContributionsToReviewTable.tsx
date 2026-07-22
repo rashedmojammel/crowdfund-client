@@ -61,7 +61,10 @@ export function ContributionsToReviewTable() {
       setViewing(null);
       return { previous };
     },
-    onSuccess: invalidateAll,
+    onSuccess: () => {
+      invalidateAll();
+      toast.success("Contribution approved.");
+    },
     onError: (error, _c, context) => {
       if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       toast.error(error instanceof Error ? error.message : "Couldn't approve this contribution");
@@ -80,7 +83,10 @@ export function ContributionsToReviewTable() {
       setViewing(null);
       return { previous };
     },
-    onSuccess: invalidateAll,
+    onSuccess: () => {
+      invalidateAll();
+      toast.success("Contribution rejected and credits refunded.");
+    },
     onError: (error, _c, context) => {
       if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       toast.error(error instanceof Error ? error.message : "Couldn't reject this contribution");

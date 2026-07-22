@@ -3,9 +3,10 @@
 // Stripe Checkout flow: Buy → POST /payments creates a Stripe Checkout
 // Session → redirect to its hosted URL.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "@gravity-ui/uikit";
+import { toast } from "sonner";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
 import {
@@ -21,6 +22,7 @@ export default function PurchaseCreditPage() {
   const user = useSessionStore((s) => s.user);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const toastIdRef = useRef<string | number | null>(null);
 
   const checkout = useMutation({
     // Real POST /payments requires both credits and amountUsd — the pair
@@ -31,11 +33,15 @@ export default function PurchaseCreditPage() {
         body: { credits: pkg.credits, amountUsd: pkg.priceUsd },
       }),
     onSuccess: ({ url }) => {
+      if (toastIdRef.current !== null) toast.dismiss(toastIdRef.current);
       // Always an absolute Stripe-hosted URL — a full navigation.
       window.location.assign(url);
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : "Couldn't start checkout");
+      if (toastIdRef.current !== null) toast.dismiss(toastIdRef.current);
+      const message = err instanceof Error ? err.message : "Couldn't start checkout";
+      setError(message);
+      toast.error(message);
       setPendingId(null);
     },
   });
@@ -55,6 +61,7 @@ export default function PurchaseCreditPage() {
   const handleBuy = (pkg: CreditPackage) => {
     setError(null);
     setPendingId(pkg.id);
+    toastIdRef.current = toast.loading("Preparing secure checkout…");
     checkout.mutate(pkg);
   };
 

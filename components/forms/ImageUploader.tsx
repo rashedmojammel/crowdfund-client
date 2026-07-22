@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,13 +13,21 @@ interface ImageUploaderProps {
   onChange: (url: string) => void;
   errorMessage?: string;
   disabled?: boolean;
+  /** Lets the parent form gate its submit button while an upload is in flight. */
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 /**
  * ImgBB file upload when NEXT_PUBLIC_IMGBB_KEY is set; otherwise a plain
  * URL input so the form still works without an ImgBB key configured.
  */
-export function ImageUploader({ value, onChange, errorMessage, disabled }: ImageUploaderProps) {
+export function ImageUploader({
+  value,
+  onChange,
+  errorMessage,
+  disabled,
+  onUploadingChange,
+}: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -59,12 +68,18 @@ export function ImageUploader({ value, onChange, errorMessage, disabled }: Image
     if (!file) return;
     setUploadError(null);
     setUploading(true);
+    onUploadingChange?.(true);
+    const toastId = toast.loading("Uploading image…");
     try {
       onChange(await uploadToImgBB(file));
+      toast.success("Image uploaded", { id: toastId });
     } catch (error) {
-      setUploadError(error instanceof Error ? error.message : "Image upload failed");
+      const message = error instanceof Error ? error.message : "Image upload failed";
+      setUploadError(message);
+      toast.error(message, { id: toastId });
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   };
 

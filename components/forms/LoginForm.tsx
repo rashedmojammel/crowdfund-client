@@ -91,7 +91,7 @@ export function LoginForm() {
       <Pressable>
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-          Log in
+          {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
       </Pressable>
     </form>

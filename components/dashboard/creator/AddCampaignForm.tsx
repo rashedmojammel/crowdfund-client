@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Info, Loader2, TriangleAlert } from "lucide-react";
+import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ export function AddCampaignForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
 
   const {
     control,
@@ -60,6 +62,7 @@ export function AddCampaignForm() {
       });
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
+      toast.success("Campaign submitted for review.");
       router.push("/dashboard/my-campaigns");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "Couldn't submit the campaign");
@@ -179,6 +182,7 @@ export function AddCampaignForm() {
               onChange={field.onChange}
               errorMessage={fieldState.error?.message}
               disabled={isSubmitting}
+              onUploadingChange={setImageUploading}
             />
           </FormField>
         )}
@@ -238,9 +242,20 @@ export function AddCampaignForm() {
       </Alert>
 
       <Pressable>
-        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-          Submit campaign for review
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={isSubmitting || imageUploading}
+        >
+          {isSubmitting || imageUploading ? (
+            <Loader2 className="animate-spin" aria-hidden="true" />
+          ) : null}
+          {imageUploading
+            ? "Uploading image…"
+            : isSubmitting
+              ? "Submitting…"
+              : "Submit campaign for review"}
         </Button>
       </Pressable>
     </form>

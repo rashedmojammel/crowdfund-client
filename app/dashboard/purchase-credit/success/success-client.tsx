@@ -6,11 +6,17 @@
 // Stripe payment yet. This page can only show a generic confirmation; it
 // can't verify the payment or report a live balance until the webhook exists.
 
+import { useEffect } from "react";
 import { Button, Icon } from "@gravity-ui/uikit";
 import { CircleCheckFill } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { FadeIn } from "@/components/animations/FadeIn";
 
 export function SuccessClient() {
+  useEffect(() => {
+    toast.success("Credits added to your wallet");
+  }, []);
+
   return (
     <FadeIn className="flex flex-col items-center gap-6 py-16 text-center">
       <span className="text-[var(--g-color-text-positive)]">

@@ -51,6 +51,7 @@ export function ReportsTable() {
     onSuccess: () => {
       invalidate();
       setConfirming(null);
+      toast.success("Campaign suspended and report resolved.");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Couldn't suspend this campaign");
@@ -66,6 +67,7 @@ export function ReportsTable() {
     onSuccess: () => {
       invalidate();
       setConfirming(null);
+      toast.success("Campaign deleted and report resolved.");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Couldn't delete this campaign");
@@ -75,7 +77,10 @@ export function ReportsTable() {
   const dismiss = useMutation({
     mutationFn: (report: Report) =>
       apiFetch(`/reports/${report._id}`, { method: "PATCH", body: { action: "dismiss" } }),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast.success("Report dismissed.");
+    },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Couldn't dismiss this report");
     },

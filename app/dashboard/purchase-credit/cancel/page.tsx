@@ -2,11 +2,17 @@
 
 // Stripe Checkout cancel redirect target — no charge was made.
 
+import { useEffect } from "react";
 import { Button, Icon } from "@gravity-ui/uikit";
 import { CircleXmark } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { FadeIn } from "@/components/animations/FadeIn";
 
 export default function PurchaseCancelPage() {
+  useEffect(() => {
+    toast("Payment cancelled");
+  }, []);
+
   return (
     <FadeIn className="flex flex-col items-center gap-6 py-16 text-center">
       <span className="opacity-40">
