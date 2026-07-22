@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ProgressBar } from "@/components/campaigns/ProgressBar";
 import { BLUR_DATA_URL } from "@/lib/constants";
+import { formatCredits, formatNumber, formatPercent } from "@/lib/format";
 import { cn, FOCUS_RING } from "@/lib/utils";
 import type { Campaign } from "@/types";
 
@@ -24,10 +25,6 @@ const creatorInitials = (name: string | undefined) =>
 
 export function CampaignCard({ campaign }: CampaignCardProps) {
   const reduceMotion = useReducedMotion();
-  const percent =
-    campaign.fundingGoal > 0
-      ? Math.min(100, Math.round((campaign.amountRaised / campaign.fundingGoal) * 100))
-      : 0;
 
   return (
     <motion.article
@@ -77,11 +74,10 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           <div className="mt-auto flex flex-col gap-2">
             <ProgressBar raised={campaign.amountRaised} goal={campaign.fundingGoal} />
             <div className="flex items-baseline justify-between text-sm">
-              <span className="font-semibold">
-                {campaign.amountRaised.toLocaleString("en-US")} credits
-              </span>
+              <span className="font-semibold">{formatCredits(campaign.amountRaised)}</span>
               <span className="text-muted-foreground">
-                {percent}% of {campaign.fundingGoal.toLocaleString("en-US")}
+                {formatPercent(campaign.amountRaised, campaign.fundingGoal)} of{" "}
+                {formatNumber(campaign.fundingGoal)}
               </span>
             </div>
           </div>
