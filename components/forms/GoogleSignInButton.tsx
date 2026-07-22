@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Pressable } from "@/components/animations/Pressable";
 import { authClient } from "@/lib/auth-client";
 
 function GoogleLogo() {
@@ -51,21 +52,23 @@ export function GoogleSignInButton() {
 
   return (
     <div className="flex flex-col gap-1">
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        className="w-full"
-        disabled={loading}
-        onClick={handleClick}
-      >
-        {loading ? (
-          <Loader2 className="animate-spin" aria-hidden="true" />
-        ) : (
-          <GoogleLogo />
-        )}
-        Continue with Google
-      </Button>
+      <Pressable>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full"
+          disabled={loading}
+          onClick={handleClick}
+        >
+          {loading ? (
+            <Loader2 className="animate-spin" aria-hidden="true" />
+          ) : (
+            <GoogleLogo />
+          )}
+          Continue with Google
+        </Button>
+      </Pressable>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
