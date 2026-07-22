@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Icon, Label } from "@gravity-ui/uikit";
+import { Alert, Button, Icon, Label } from "@gravity-ui/uikit";
 import { Ban, Flag, TrashBin, Xmark } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -26,7 +26,7 @@ export function ReportsTable() {
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState<PendingAction>(null);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["reports"],
     queryFn: () => apiFetch<{ reports: Report[] }>("/reports"),
   });
@@ -152,6 +152,17 @@ export function ReportsTable() {
         ) : null,
     },
   ];
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load reports"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-64 w-full rounded-xl" />;
