@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
-import { daysLeft, formatDate, formatNumber } from "@/lib/format";
+import { formatDate, formatNumber, formatPercent, formatRelative } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
 import type { Campaign } from "@/types";
 
@@ -68,35 +68,26 @@ export function MyCampaignsTable() {
       key: "raised",
       title: "Raised / Goal",
       align: "right",
-      render: (row) => {
-        const percent =
-          row.fundingGoal > 0
-            ? Math.min(100, Math.round((row.amountRaised / row.fundingGoal) * 100))
-            : 0;
-        return (
-          <div>
-            <p className="font-medium">
-              {formatNumber(row.amountRaised)} / {formatNumber(row.fundingGoal)}
-            </p>
-            <p className="text-xs opacity-60">{percent}% funded</p>
-          </div>
-        );
-      },
+      render: (row) => (
+        <div>
+          <p className="font-medium">
+            {formatNumber(row.amountRaised)} / {formatNumber(row.fundingGoal)}
+          </p>
+          <p className="text-xs opacity-60">
+            {formatPercent(row.amountRaised, row.fundingGoal)} funded
+          </p>
+        </div>
+      ),
     },
     {
       key: "deadline",
       title: "Deadline",
-      render: (row) => {
-        const remaining = daysLeft(row.deadline);
-        return (
-          <div>
-            <p>{formatDate(row.deadline)}</p>
-            <p className="text-xs opacity-60">
-              {remaining > 0 ? `${remaining} day${remaining === 1 ? "" : "s"} left` : "Ended"}
-            </p>
-          </div>
-        );
-      },
+      render: (row) => (
+        <div>
+          <p>{formatDate(row.deadline)}</p>
+          <p className="text-xs opacity-60">{formatRelative(row.deadline)}</p>
+        </div>
+      ),
     },
     {
       key: "actions",

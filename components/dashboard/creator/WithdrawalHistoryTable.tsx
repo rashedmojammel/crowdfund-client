@@ -7,7 +7,7 @@ import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTabl
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
-import { formatCredits, formatDate, formatUsd } from "@/lib/format";
+import { formatCredits, formatDate, formatUsd, maskAccount } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
 import type { Paginated, Withdrawal } from "@/types";
 
@@ -39,7 +39,7 @@ const columns: Array<DataTableColumn<Withdrawal>> = [
     render: (row) => (
       <div>
         <p className="capitalize">{row.paymentSystem}</p>
-        <p className="font-mono text-xs opacity-60">{row.accountNumber}</p>
+        <p className="font-mono text-xs opacity-60">{maskAccount(row.accountNumber)}</p>
       </div>
     ),
   },
