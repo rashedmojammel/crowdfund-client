@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, Sparkles } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { apiFetch } from "@/lib/api-client";
 import { cn, FOCUS_RING } from "@/lib/utils";
 import type { Campaign } from "@/types";
@@ -47,7 +48,17 @@ export function TopFundedCampaigns() {
             </AlertDescription>
           </Alert>
         ) : (
-          <CampaignGrid campaigns={data?.campaigns} isLoading={isPending} />
+          <CampaignGrid
+            campaigns={data?.campaigns}
+            isLoading={isPending}
+            emptyState={
+              <EmptyState
+                icon={Sparkles}
+                title="No campaigns yet"
+                subtitle="Once campaigns are approved and start getting backed, the top-funded ones will show up here."
+              />
+            }
+          />
         )}
       </div>
     </section>
