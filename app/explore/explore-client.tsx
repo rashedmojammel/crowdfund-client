@@ -3,8 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { CircleAlert, Search } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/animations/FadeIn";
 import {
@@ -14,6 +13,7 @@ import {
 } from "@/components/campaigns/CampaignFilters";
 import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
 import { EmptyState } from "@/components/dashboard/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { useDebounce } from "@/hooks/useDebounce";
 import { apiFetch } from "@/lib/api-client";
 import type { Campaign } from "@/types";

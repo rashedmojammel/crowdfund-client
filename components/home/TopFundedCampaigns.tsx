@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { CircleAlert, Sparkles } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { CampaignGrid } from "@/components/campaigns/CampaignGrid";
 import { EmptyState } from "@/components/dashboard/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { apiFetch } from "@/lib/api-client";
 import { cn, FOCUS_RING } from "@/lib/utils";
 import type { Campaign } from "@/types";
@@ -37,16 +36,11 @@ export function TopFundedCampaigns() {
 
       <div className="mt-8">
         {isError ? (
-          <Alert variant="destructive">
-            <CircleAlert />
-            <AlertTitle>Couldn&rsquo;t load campaigns</AlertTitle>
-            <AlertDescription>
-              Something went wrong while fetching the top funded campaigns.
-              <Button variant="outline" size="sm" className="mt-2 w-fit" onClick={() => refetch()}>
-                Try again
-              </Button>
-            </AlertDescription>
-          </Alert>
+          <ErrorState
+            title="Couldn't load campaigns"
+            message="Something went wrong while fetching the top funded campaigns."
+            onRetry={() => refetch()}
+          />
         ) : (
           <CampaignGrid
             campaigns={data?.campaigns}
