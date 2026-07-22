@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Icon } from "@gravity-ui/uikit";
+import { Alert, Button, Icon } from "@gravity-ui/uikit";
 import { Check, CircleCheck, Xmark } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -22,8 +23,10 @@ export function CampaignApprovalsTable() {
   // exposes the public approved-only list, the creator-scoped /mine list,
   // and single-campaign GET. There is currently no admin "every status"
   // list, so this table cannot load real data until the server adds one.
-  const { data, isPending } = useQuery({
-    queryKey: ["campaigns", "all"],
+  const queryKey = ["campaigns", "all"] as const;
+
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey,
     queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/all"),
   });
 
@@ -33,18 +36,44 @@ export function CampaignApprovalsTable() {
     queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
+  /** Optimistically patches the row's status; returns the prior cache for rollback. */
+  const applyOptimisticStatus = (id: string, status: Campaign["status"]) => {
+    const previous = queryClient.getQueryData<{ campaigns: Campaign[] }>(queryKey);
+    queryClient.setQueryData<{ campaigns: Campaign[] }>(queryKey, (old) =>
+      old
+        ? { campaigns: old.campaigns.map((c) => (c._id === id ? { ...c, status } : c)) }
+        : old
+    );
+    return previous;
+  };
+
   const approve = useMutation({
     mutationFn: (c: Campaign) =>
       apiFetch<{ campaign: Campaign }>(`/campaigns/${c._id}/approve`, { method: "PATCH" }),
+    onMutate: async (c) => {
+      await queryClient.cancelQueries({ queryKey });
+      return { previous: applyOptimisticStatus(c._id, "approved") };
+    },
     onSuccess: invalidate,
+    onError: (error, _c, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      toast.error(error instanceof Error ? error.message : "Couldn't approve this campaign");
+    },
   });
 
   const reject = useMutation({
     mutationFn: (c: Campaign) =>
       apiFetch<{ campaign: Campaign }>(`/campaigns/${c._id}/reject`, { method: "PATCH" }),
-    onSuccess: () => {
-      invalidate();
+    onMutate: async (c) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = applyOptimisticStatus(c._id, "rejected");
       setRejecting(null);
+      return { previous };
+    },
+    onSuccess: invalidate,
+    onError: (error, _c, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      toast.error(error instanceof Error ? error.message : "Couldn't reject this campaign");
     },
   });
 
@@ -113,6 +142,17 @@ export function CampaignApprovalsTable() {
       ),
     },
   ];
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load campaign approvals"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-48 w-full rounded-xl" />;
