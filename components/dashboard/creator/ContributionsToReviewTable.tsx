@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Icon } from "@gravity-ui/uikit";
+import { Alert, Button, Icon } from "@gravity-ui/uikit";
 import { Check, Eye, Heart, Xmark } from "@gravity-ui/icons";
 import { ContributionStatusBadge } from "@/components/dashboard/ContributionStatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
@@ -22,7 +22,7 @@ export function ContributionsToReviewTable() {
   const [viewing, setViewing] = useState<Contribution | null>(null);
   const [rejecting, setRejecting] = useState<Contribution | null>(null);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["contributions", "for-creator", user?.email],
     // limit=50 approximates "all" — this table has no pagination control.
     queryFn: () =>
@@ -143,6 +143,17 @@ export function ContributionsToReviewTable() {
       ),
     },
   ];
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load contributions to review"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-64 w-full rounded-xl" />;
