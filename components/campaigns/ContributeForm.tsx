@@ -65,6 +65,7 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
       // showing pre-contribution data until an unrelated refetch happens.
       queryClient.invalidateQueries({ queryKey: ["contributions"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
+      toast.success("Contribution submitted — the creator will review it.");
     },
     // Roll back the optimistic success state if the server rejects it.
     onError: (error) => {
@@ -145,9 +146,34 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
     );
   }
 
+  // Wallet balance can't even cover this campaign's minimum — nothing to
+  // submit until the supporter tops up.
+  if (user.credits < campaign.minimumContribution) {
+    const shortfall = campaign.minimumContribution - user.credits;
+    return (
+      <Alert variant="warning">
+        <TriangleAlert />
+        <AlertTitle>Insufficient credit</AlertTitle>
+        <AlertDescription>
+          This campaign has a {formatCredits(campaign.minimumContribution)} minimum. You need{" "}
+          {formatCredits(shortfall)} more to contribute.
+          <Pressable className="mt-2 w-fit">
+            <Button size="sm" className="w-fit" asChild>
+              <Link href="/dashboard/purchase-credit">Purchase credit</Link>
+            </Button>
+          </Pressable>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   const onSubmit = handleSubmit((values) => {
     setFormError(null);
     const amount = Number(values.amount);
+    if (amount < campaign.minimumContribution) {
+      setFormError(`Minimum contribution for this campaign is ${formatCredits(campaign.minimumContribution)}.`);
+      return;
+    }
     if (amount > user.credits) {
       setFormError(
         `You have ${formatCredits(user.credits)} — top up your wallet to contribute ${formatCredits(amount)}.`
@@ -181,25 +207,38 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
       <Controller
         control={control}
         name="amount"
-        render={({ field, fieldState }) => (
-          <FormField
-            label="Amount (credits)"
-            htmlFor="contribute-amount"
-            required
-            error={fieldState.error?.message}
-          >
-            <Input
-              id="contribute-amount"
-              type="text"
-              inputMode="numeric"
-              placeholder="100"
-              value={field.value}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              aria-invalid={fieldState.error ? true : undefined}
-            />
-          </FormField>
-        )}
+        render={({ field, fieldState }) => {
+          const parsed = /^\d+$/.test(field.value) ? Number(field.value) : null;
+          const belowMinimum = parsed !== null && parsed < campaign.minimumContribution;
+          return (
+            <FormField
+              label="Amount (credits)"
+              htmlFor="contribute-amount"
+              required
+              error={fieldState.error?.message}
+            >
+              <Input
+                id="contribute-amount"
+                type="text"
+                inputMode="numeric"
+                placeholder="100"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                aria-invalid={fieldState.error || belowMinimum ? true : undefined}
+              />
+              {!fieldState.error ? (
+                <p
+                  className={
+                    belowMinimum ? "text-sm text-destructive" : "text-sm text-muted-foreground"
+                  }
+                >
+                  Minimum contribution: {formatCredits(campaign.minimumContribution)}
+                </p>
+              ) : null}
+            </FormField>
+          );
+        }}
       />
 
       <div className="flex flex-wrap gap-2">
