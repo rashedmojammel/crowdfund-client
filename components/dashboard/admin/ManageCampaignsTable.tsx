@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Icon } from "@gravity-ui/uikit";
+import { Alert, Button, Icon } from "@gravity-ui/uikit";
 import { Layers, TrashBin } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -21,7 +22,7 @@ export function ManageCampaignsTable() {
 
   // NOTE: /campaigns/all has no matching real endpoint — see the same note
   // in CampaignApprovalsTable.tsx.
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaigns", "all"],
     queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/all"),
   });
@@ -34,6 +35,9 @@ export function ManageCampaignsTable() {
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       setDeleting(null);
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Couldn't delete this campaign");
     },
   });
 
@@ -98,6 +102,17 @@ export function ManageCampaignsTable() {
       ),
     },
   ];
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load campaigns"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-64 w-full rounded-xl" />;
