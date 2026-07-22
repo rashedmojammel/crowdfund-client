@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@gravity-ui/uikit";
+import { Alert, Button } from "@gravity-ui/uikit";
 import { CreditCard } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -49,12 +49,23 @@ const columns: Array<DataTableColumn<Payment>> = [
 export function PaymentHistoryTable() {
   const user = useSessionStore((s) => s.user);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["payments", user?.email],
     // limit=50 approximates "all" — this table has no pagination control.
     queryFn: () => apiFetch<Paginated<Payment>>("/payments?limit=50"),
     enabled: Boolean(user),
   });
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load payment history"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-64 w-full rounded-xl" />;
