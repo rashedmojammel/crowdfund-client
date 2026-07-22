@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Loader2 } from "lucide-react";
+import { Bell, Loader2, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDismissable } from "@/hooks/useDismissable";
@@ -29,7 +29,12 @@ export function NotificationBell() {
     refetchInterval: 30_000,
   });
 
-  const { data: notificationsData, isPending } = useQuery({
+  const {
+    data: notificationsData,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["notifications", "list", user?.email],
     queryFn: () => apiFetch<{ notifications: AppNotification[] }>("/notifications"),
     enabled: Boolean(user) && open,
@@ -100,7 +105,15 @@ export function NotificationBell() {
             </div>
 
             <div className="max-h-96 overflow-y-auto">
-              {isPending ? (
+              {isError ? (
+                <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
+                  <TriangleAlert className="size-5 text-destructive" aria-hidden="true" />
+                  <p className="text-sm text-muted-foreground">Couldn&rsquo;t load notifications.</p>
+                  <Button variant="outline" size="sm" onClick={() => refetch()}>
+                    Try again
+                  </Button>
+                </div>
+              ) : isPending ? (
                 <div className="flex flex-col gap-3 p-4">
                   <Skeleton className="h-10 w-full" />
                   <Skeleton className="h-10 w-full" />
