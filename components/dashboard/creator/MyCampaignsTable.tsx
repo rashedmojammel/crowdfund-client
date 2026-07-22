@@ -9,7 +9,7 @@ import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge"
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { daysLeft, formatDate, formatNumber } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
@@ -23,13 +23,13 @@ export function MyCampaignsTable() {
 
   const { data, isPending } = useQuery({
     queryKey: ["campaigns", "mine", user?.email],
-    queryFn: () => apiFetch<Campaign[]>("/campaigns/mine"),
+    queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/mine"),
     enabled: Boolean(user),
   });
 
   const remove = useMutation({
     mutationFn: (campaign: Campaign) =>
-      apiFetch(`/campaigns/${campaign.id}`, { method: "DELETE" }),
+      apiFetch(`/campaigns/${campaign._id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["contributions"] });
@@ -45,7 +45,7 @@ export function MyCampaignsTable() {
       render: (row) => (
         <div>
           <Link
-            href={`/campaigns/${row.id}`}
+            href={`/campaigns/${row._id}`}
             className="font-medium underline-offset-4 hover:underline"
           >
             {row.title}
@@ -65,13 +65,13 @@ export function MyCampaignsTable() {
       align: "right",
       render: (row) => {
         const percent =
-          row.funding_goal > 0
-            ? Math.min(100, Math.round((row.amount_raised / row.funding_goal) * 100))
+          row.fundingGoal > 0
+            ? Math.min(100, Math.round((row.amountRaised / row.fundingGoal) * 100))
             : 0;
         return (
           <div>
             <p className="font-medium">
-              {formatNumber(row.amount_raised)} / {formatNumber(row.funding_goal)}
+              {formatNumber(row.amountRaised)} / {formatNumber(row.fundingGoal)}
             </p>
             <p className="text-xs opacity-60">{percent}% funded</p>
           </div>
@@ -104,7 +104,7 @@ export function MyCampaignsTable() {
             size="s"
             title="Update title, story, or reward"
             aria-label={`Update ${row.title}`}
-            href={`/dashboard/my-campaigns/${row.id}/edit`}
+            href={`/dashboard/my-campaigns/${row._id}/edit`}
           >
             <Icon data={Pencil} size={16} />
           </Button>
@@ -130,8 +130,8 @@ export function MyCampaignsTable() {
     <>
       <DataTable
         columns={columns}
-        rows={data}
-        rowKey={(row) => row.id}
+        rows={data.campaigns}
+        rowKey={(row) => row._id}
         emptyState={
           <EmptyState
             icon={CirclePlus}

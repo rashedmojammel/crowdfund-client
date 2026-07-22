@@ -8,7 +8,7 @@ import { Check, CircleCheck, Xmark } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { Campaign } from "@/types";
@@ -18,9 +18,13 @@ export function CampaignApprovalsTable() {
   const queryClient = useQueryClient();
   const [rejecting, setRejecting] = useState<Campaign | null>(null);
 
+  // NOTE: /campaigns/all has no matching real endpoint — the server only
+  // exposes the public approved-only list, the creator-scoped /mine list,
+  // and single-campaign GET. There is currently no admin "every status"
+  // list, so this table cannot load real data until the server adds one.
   const { data, isPending } = useQuery({
     queryKey: ["campaigns", "all"],
-    queryFn: () => apiFetch<Campaign[]>("/campaigns/all"),
+    queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/all"),
   });
 
   const invalidate = () => {
@@ -31,13 +35,13 @@ export function CampaignApprovalsTable() {
 
   const approve = useMutation({
     mutationFn: (c: Campaign) =>
-      apiFetch<Campaign>(`/campaigns/${c.id}/approve`, { method: "PATCH" }),
+      apiFetch<{ campaign: Campaign }>(`/campaigns/${c._id}/approve`, { method: "PATCH" }),
     onSuccess: invalidate,
   });
 
   const reject = useMutation({
     mutationFn: (c: Campaign) =>
-      apiFetch<Campaign>(`/campaigns/${c.id}/reject`, { method: "PATCH" }),
+      apiFetch<{ campaign: Campaign }>(`/campaigns/${c._id}/reject`, { method: "PATCH" }),
     onSuccess: () => {
       invalidate();
       setRejecting(null);
@@ -51,13 +55,13 @@ export function CampaignApprovalsTable() {
       render: (row) => (
         <div>
           <Link
-            href={`/campaigns/${row.id}`}
+            href={`/campaigns/${row._id}`}
             className="font-medium underline-offset-4 hover:underline"
           >
             {row.title}
           </Link>
           <p className="text-xs opacity-60">
-            <span className="capitalize">{row.category}</span> · by {row.creatorName}
+            <span className="capitalize">{row.category}</span> · by {row.creatorEmail}
           </p>
         </div>
       ),
@@ -66,7 +70,7 @@ export function CampaignApprovalsTable() {
       key: "goal",
       title: "Goal",
       align: "right",
-      render: (row) => `${formatNumber(row.funding_goal)} credits`,
+      render: (row) => `${formatNumber(row.fundingGoal)} credits`,
     },
     {
       key: "deadline",
@@ -91,7 +95,7 @@ export function CampaignApprovalsTable() {
             size="s"
             title="Approve and take live"
             aria-label={`Approve ${row.title}`}
-            loading={approve.isPending && approve.variables?.id === row.id}
+            loading={approve.isPending && approve.variables?._id === row._id}
             onClick={() => approve.mutate(row)}
           >
             <Icon data={Check} size={16} />
@@ -114,14 +118,14 @@ export function CampaignApprovalsTable() {
     return <Skeleton className="h-48 w-full rounded-xl" />;
   }
 
-  const pending = data.filter((c) => c.status === "pending");
+  const pending = data.campaigns.filter((c) => c.status === "pending");
 
   return (
     <>
       <DataTable
         columns={columns}
         rows={pending}
-        rowKey={(row) => row.id}
+        rowKey={(row) => row._id}
         emptyState={
           <EmptyState
             icon={CircleCheck}
@@ -136,7 +140,7 @@ export function CampaignApprovalsTable() {
         title="Reject this campaign?"
         message={
           rejecting
-            ? `"${rejecting.title}" won't go live and ${rejecting.creatorName} will be notified with guidance to revise and resubmit.`
+            ? `"${rejecting.title}" won't go live and ${rejecting.creatorEmail} will be notified with guidance to revise and resubmit.`
             : ""
         }
         confirmText="Reject campaign"

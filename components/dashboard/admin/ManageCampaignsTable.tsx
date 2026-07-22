@@ -9,7 +9,7 @@ import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge"
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { Campaign } from "@/types";
@@ -19,13 +19,15 @@ export function ManageCampaignsTable() {
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<Campaign | null>(null);
 
+  // NOTE: /campaigns/all has no matching real endpoint — see the same note
+  // in CampaignApprovalsTable.tsx.
   const { data, isPending } = useQuery({
     queryKey: ["campaigns", "all"],
-    queryFn: () => apiFetch<Campaign[]>("/campaigns/all"),
+    queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/all"),
   });
 
   const remove = useMutation({
-    mutationFn: (c: Campaign) => apiFetch(`/campaigns/${c.id}`, { method: "DELETE" }),
+    mutationFn: (c: Campaign) => apiFetch(`/campaigns/${c._id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["contributions"] });
@@ -44,13 +46,13 @@ export function ManageCampaignsTable() {
       render: (row) => (
         <div>
           <Link
-            href={`/campaigns/${row.id}`}
+            href={`/campaigns/${row._id}`}
             className="font-medium underline-offset-4 hover:underline"
           >
             {row.title}
           </Link>
           <p className="text-xs opacity-60">
-            <span className="capitalize">{row.category}</span> · by {row.creatorName}
+            <span className="capitalize">{row.category}</span> · by {row.creatorEmail}
           </p>
         </div>
       ),
@@ -65,10 +67,10 @@ export function ManageCampaignsTable() {
       title: "Raised / Goal",
       align: "right",
       sortable: true,
-      sortValue: (row) => row.amount_raised,
+      sortValue: (row) => row.amountRaised,
       render: (row) => (
         <span>
-          {formatNumber(row.amount_raised)} / {formatNumber(row.funding_goal)}
+          {formatNumber(row.amountRaised)} / {formatNumber(row.fundingGoal)}
         </span>
       ),
     },
@@ -105,8 +107,8 @@ export function ManageCampaignsTable() {
     <>
       <DataTable
         columns={columns}
-        rows={data}
-        rowKey={(row) => row.id}
+        rows={data.campaigns}
+        rowKey={(row) => row._id}
         emptyState={
           <EmptyState
             icon={Layers}
@@ -121,7 +123,7 @@ export function ManageCampaignsTable() {
         title="Delete this campaign?"
         message={
           deleting
-            ? `"${deleting.title}" by ${deleting.creatorName} will be removed permanently. Every approved contribution is refunded to its supporter and everyone involved is notified.`
+            ? `"${deleting.title}" by ${deleting.creatorEmail} will be removed permanently. Every approved contribution is refunded to its supporter and everyone involved is notified.`
             : ""
         }
         confirmText="Delete and refund backers"

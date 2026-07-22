@@ -50,10 +50,16 @@ export function ReportCampaignButton({ campaign }: ReportCampaignButtonProps) {
   });
 
   const report = useMutation({
+    // The real server takes a single free-text `reason` (10-500 chars, no
+    // `details` field) — fold the dropdown reason and the details textarea
+    // together rather than changing the two-field form.
     mutationFn: (values: ReportInput) =>
-      apiFetch<Report>("/reports", {
+      apiFetch<{ report: Report }>("/reports", {
         method: "POST",
-        body: { campaignId: campaign.id, ...values },
+        body: {
+          campaignId: campaign._id,
+          reason: `${values.reason}: ${values.details}`.slice(0, 500),
+        },
       }),
     onSuccess: () => {
       setSubmitted(true);

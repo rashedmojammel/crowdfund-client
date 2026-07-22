@@ -45,12 +45,12 @@ export function UpdateCampaignForm({ campaign }: UpdateCampaignFormProps) {
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
     try {
-      await apiFetch<Campaign>(`/campaigns/${campaign.id}`, {
+      await apiFetch<{ campaign: Campaign }>(`/campaigns/${campaign._id}`, {
         method: "PATCH",
         body: values,
       });
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
-      queryClient.invalidateQueries({ queryKey: ["campaign", campaign.id] });
+      queryClient.invalidateQueries({ queryKey: ["campaign", campaign._id] });
       router.push("/dashboard/my-campaigns");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "Couldn't save changes");

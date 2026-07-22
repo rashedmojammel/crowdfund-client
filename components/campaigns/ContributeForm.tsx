@@ -47,14 +47,14 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
 
   const mutation = useMutation({
     mutationFn: (amount: number) =>
-      apiFetch<Contribution>("/contributions", {
+      apiFetch<{ contribution: Contribution }>("/contributions", {
         method: "POST",
-        body: { campaignId: campaign.id, amount },
+        body: { campaignId: campaign._id, amount },
       }),
     onSuccess: () => {
       setSubmitted(true);
       reset();
-      queryClient.invalidateQueries({ queryKey: ["campaign", campaign.id] });
+      queryClient.invalidateQueries({ queryKey: ["campaign", campaign._id] });
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
     },
   });

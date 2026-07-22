@@ -41,8 +41,8 @@ export function AddCampaignForm() {
       category: "community",
       story: "",
       reward: "",
-      image: "",
-      funding_goal: "",
+      coverImage: "",
+      fundingGoal: "",
       deadline: "",
     },
   });
@@ -50,11 +50,11 @@ export function AddCampaignForm() {
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
     try {
-      await apiFetch<Campaign>("/campaigns", {
+      await apiFetch<{ campaign: Campaign }>("/campaigns", {
         method: "POST",
         body: {
           ...values,
-          funding_goal: Number(values.funding_goal),
+          fundingGoal: Number(values.fundingGoal),
           deadline: new Date(`${values.deadline}T23:59:59`).toISOString(),
         },
       });
@@ -124,7 +124,7 @@ export function AddCampaignForm() {
 
         <Controller
           control={control}
-          name="funding_goal"
+          name="fundingGoal"
           render={({ field, fieldState }) => (
             <FormField
               label="Funding goal (credits)"
@@ -171,7 +171,7 @@ export function AddCampaignForm() {
 
       <Controller
         control={control}
-        name="image"
+        name="coverImage"
         render={({ field, fieldState }) => (
           <FormField label="Cover image" required>
             <ImageUploader

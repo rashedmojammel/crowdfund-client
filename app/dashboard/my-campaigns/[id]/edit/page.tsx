@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Alert } from "@gravity-ui/uikit";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { UpdateCampaignForm } from "@/components/dashboard/creator/UpdateCampaignForm";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { useSessionStore } from "@/lib/store";
 import type { Campaign } from "@/types";
@@ -14,11 +14,12 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const user = useSessionStore((s) => s.user);
 
-  const { data: campaign, isPending, isError } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["campaign", id],
-    queryFn: () => apiFetch<Campaign>(`/campaigns/${id}`),
+    queryFn: () => apiFetch<{ campaign: Campaign }>(`/campaigns/${id}`),
     enabled: Boolean(user),
   });
+  const campaign = data?.campaign;
 
   if (!user) return null;
 
