@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, Icon } from "@gravity-ui/uikit";
 import { Check, Eye, Heart, Xmark } from "@gravity-ui/icons";
+import { toast } from "sonner";
 import { ContributionStatusBadge } from "@/components/dashboard/ContributionStatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -22,8 +23,10 @@ export function ContributionsToReviewTable() {
   const [viewing, setViewing] = useState<Contribution | null>(null);
   const [rejecting, setRejecting] = useState<Contribution | null>(null);
 
+  const queryKey = ["contributions", "for-creator", user?.email] as const;
+
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["contributions", "for-creator", user?.email],
+    queryKey,
     // limit=50 approximates "all" — this table has no pagination control.
     queryFn: () =>
       apiFetch<Paginated<Contribution>>("/contributions?forCreator=true&limit=50"),
@@ -38,14 +41,30 @@ export function ContributionsToReviewTable() {
     queryClient.invalidateQueries({ queryKey: ["stats"] });
   };
 
+  /** Optimistically patches the row's status; returns the prior cache for rollback. */
+  const applyOptimisticStatus = (id: string, status: Contribution["status"]) => {
+    const previous = queryClient.getQueryData<Paginated<Contribution>>(queryKey);
+    queryClient.setQueryData<Paginated<Contribution>>(queryKey, (old) =>
+      old ? { ...old, items: old.items.map((c) => (c._id === id ? { ...c, status } : c)) } : old
+    );
+    return previous;
+  };
+
   const approve = useMutation({
     mutationFn: (c: Contribution) =>
       apiFetch<{ contribution: Contribution }>(`/contributions/${c._id}/approve`, {
         method: "PATCH",
       }),
-    onSuccess: () => {
-      invalidateAll();
+    onMutate: async (c) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = applyOptimisticStatus(c._id, "approved");
       setViewing(null);
+      return { previous };
+    },
+    onSuccess: invalidateAll,
+    onError: (error, _c, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      toast.error(error instanceof Error ? error.message : "Couldn't approve this contribution");
     },
   });
 
@@ -54,10 +73,17 @@ export function ContributionsToReviewTable() {
       apiFetch<{ contribution: Contribution }>(`/contributions/${c._id}/reject`, {
         method: "PATCH",
       }),
-    onSuccess: () => {
-      invalidateAll();
+    onMutate: async (c) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = applyOptimisticStatus(c._id, "rejected");
       setRejecting(null);
       setViewing(null);
+      return { previous };
+    },
+    onSuccess: invalidateAll,
+    onError: (error, _c, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      toast.error(error instanceof Error ? error.message : "Couldn't reject this contribution");
     },
   });
 
