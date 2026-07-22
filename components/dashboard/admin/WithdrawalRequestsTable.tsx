@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
-import { formatCredits, formatDate, formatUsd } from "@/lib/format";
+import { formatCredits, formatDate, formatUsd, maskAccount } from "@/lib/format";
 import type { Paginated, Withdrawal } from "@/types";
 
 /** All withdrawal requests, pending first, with the mark-paid action. */
@@ -67,7 +67,7 @@ export function WithdrawalRequestsTable() {
       render: (row) => (
         <div>
           <p className="capitalize">{row.paymentSystem}</p>
-          <p className="font-mono text-xs opacity-60">{row.accountNumber}</p>
+          <p className="font-mono text-xs opacity-60">{maskAccount(row.accountNumber)}</p>
         </div>
       ),
     },
