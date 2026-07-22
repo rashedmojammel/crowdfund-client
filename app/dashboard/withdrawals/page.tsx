@@ -18,14 +18,22 @@ import type { CreatorStats, Paginated, Withdrawal } from "@/types";
 export default function WithdrawalsPage() {
   const user = useSessionStore((s) => s.user);
 
-  const { data: statsData } = useQuery({
+  const {
+    data: statsData,
+    isError: statsError,
+    refetch: refetchStats,
+  } = useQuery({
     queryKey: ["stats", "creator", user?.email],
     queryFn: () => apiFetch<{ stats: CreatorStats }>("/stats/creator"),
     enabled: Boolean(user),
   });
   const stats = statsData?.stats;
 
-  const { data: withdrawalsData } = useQuery({
+  const {
+    data: withdrawalsData,
+    isError: withdrawalsError,
+    refetch: refetchWithdrawals,
+  } = useQuery({
     queryKey: ["withdrawals", "mine", user?.email],
     queryFn: () => apiFetch<Paginated<Withdrawal>>("/withdrawals?mine=true&limit=50"),
     enabled: Boolean(user),
@@ -40,6 +48,29 @@ export default function WithdrawalsPage() {
         theme="info"
         title="Creators only"
         message="Withdrawals are for creator accounts cashing out raised campaign credits."
+      />
+    );
+  }
+
+  // Both feed the "available" calculation below — showing it on a partial
+  // failure would silently understate (or overstate) how much a creator
+  // can withdraw.
+  if (statsError || withdrawalsError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load your withdrawal data"
+        message="Something went wrong while fetching this."
+        actions={
+          <Alert.Action
+            onClick={() => {
+              if (statsError) refetchStats();
+              if (withdrawalsError) refetchWithdrawals();
+            }}
+          >
+            Try again
+          </Alert.Action>
+        }
       />
     );
   }
