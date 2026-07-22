@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FadeIn } from "@/components/animations/FadeIn";
-import { DemoAccountsCallout } from "@/components/forms/DemoAccountsCallout";
 import { LoginForm } from "@/components/forms/LoginForm";
 import { GoogleSignInButton } from "@/components/forms/GoogleSignInButton";
 import { cn, FOCUS_RING } from "@/lib/utils";
@@ -30,10 +29,6 @@ export default function LoginPage() {
         </div>
 
         <GoogleSignInButton />
-
-        <div className="mt-6">
-          <DemoAccountsCallout />
-        </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           New to FundSpark?{" "}
