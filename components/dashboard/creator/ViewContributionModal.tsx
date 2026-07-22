@@ -2,7 +2,7 @@
 
 import { Dialog } from "@gravity-ui/uikit";
 import { ContributionStatusBadge } from "@/components/dashboard/ContributionStatusBadge";
-import { formatCredits, formatDate } from "@/lib/format";
+import { formatCredits, formatDateTime } from "@/lib/format";
 import type { Contribution } from "@/types";
 
 interface ViewContributionModalProps {
@@ -53,7 +53,7 @@ export function ViewContributionModal({
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt className="opacity-70">Submitted</dt>
-              <dd>{formatDate(contribution.createdAt)}</dd>
+              <dd>{formatDateTime(contribution.createdAt)}</dd>
             </div>
           </dl>
         ) : null}
