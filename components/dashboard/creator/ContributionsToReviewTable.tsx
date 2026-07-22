@@ -9,11 +9,11 @@ import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTabl
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ViewContributionModal } from "@/components/dashboard/creator/ViewContributionModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatCredits, formatDate } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
-import type { Contribution } from "@/types";
+import type { Contribution, Paginated } from "@/types";
 
 /** Contributions on the creator's campaigns with View / Approve / Reject. */
 export function ContributionsToReviewTable() {
@@ -24,12 +24,14 @@ export function ContributionsToReviewTable() {
 
   const { data, isPending } = useQuery({
     queryKey: ["contributions", "for-creator", user?.email],
-    queryFn: () => apiFetch<Contribution[]>("/contributions?forCreator=true"),
+    // limit=50 approximates "all" — this table has no pagination control.
+    queryFn: () =>
+      apiFetch<Paginated<Contribution>>("/contributions?forCreator=true&limit=50"),
     enabled: Boolean(user),
   });
 
   const invalidateAll = () => {
-    // Approval changes amount_raised and stats; rejection refunds credits.
+    // Approval changes amountRaised and stats; rejection refunds credits.
     queryClient.invalidateQueries({ queryKey: ["contributions"] });
     queryClient.invalidateQueries({ queryKey: ["campaigns"] });
     queryClient.invalidateQueries({ queryKey: ["campaign"] });
@@ -38,7 +40,9 @@ export function ContributionsToReviewTable() {
 
   const approve = useMutation({
     mutationFn: (c: Contribution) =>
-      apiFetch<Contribution>(`/contributions/${c.id}/approve`, { method: "PATCH" }),
+      apiFetch<{ contribution: Contribution }>(`/contributions/${c._id}/approve`, {
+        method: "PATCH",
+      }),
     onSuccess: () => {
       invalidateAll();
       setViewing(null);
@@ -47,7 +51,9 @@ export function ContributionsToReviewTable() {
 
   const reject = useMutation({
     mutationFn: (c: Contribution) =>
-      apiFetch<Contribution>(`/contributions/${c.id}/reject`, { method: "PATCH" }),
+      apiFetch<{ contribution: Contribution }>(`/contributions/${c._id}/reject`, {
+        method: "PATCH",
+      }),
     onSuccess: () => {
       invalidateAll();
       setRejecting(null);
@@ -71,7 +77,9 @@ export function ContributionsToReviewTable() {
     {
       key: "campaign",
       title: "Campaign",
-      render: (row) => row.campaignTitle,
+      // No campaignTitle on the real Contribution document — see the note
+      // in MyContributionsTable.tsx.
+      render: (row) => row.campaignId,
     },
     {
       key: "amount",
@@ -115,7 +123,7 @@ export function ContributionsToReviewTable() {
                 size="s"
                 title="Approve"
                 aria-label={`Approve ${formatCredits(row.amount)} from ${row.supporterName}`}
-                loading={approve.isPending && approve.variables?.id === row.id}
+                loading={approve.isPending && approve.variables?._id === row._id}
                 onClick={() => approve.mutate(row)}
               >
                 <Icon data={Check} size={16} />
@@ -144,8 +152,8 @@ export function ContributionsToReviewTable() {
     <>
       <DataTable
         columns={columns}
-        rows={data}
-        rowKey={(row) => row.id}
+        rows={data.items}
+        rowKey={(row) => row._id}
         emptyState={
           <EmptyState
             icon={Heart}

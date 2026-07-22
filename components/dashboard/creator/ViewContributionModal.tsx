@@ -39,7 +39,7 @@ export function ViewContributionModal({
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt className="opacity-70">Campaign</dt>
-              <dd className="text-right font-medium">{contribution.campaignTitle}</dd>
+              <dd className="text-right font-medium">{contribution.campaignId}</dd>
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt className="opacity-70">Amount</dt>

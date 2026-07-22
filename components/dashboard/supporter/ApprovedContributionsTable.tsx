@@ -6,7 +6,7 @@ import { Button } from "@gravity-ui/uikit";
 import { Heart } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatCredits, formatDate } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
@@ -16,14 +16,16 @@ const columns: Array<DataTableColumn<Contribution>> = [
   {
     key: "campaign",
     title: "Campaign",
+    // No campaignTitle on the real Contribution document — see the same
+    // note in MyContributionsTable.tsx.
     sortable: true,
-    sortValue: (row) => row.campaignTitle,
+    sortValue: (row) => row.campaignId,
     render: (row) => (
       <Link
         href={`/campaigns/${row.campaignId}`}
         className="font-medium underline-offset-4 hover:underline"
       >
-        {row.campaignTitle}
+        {row.campaignId}
       </Link>
     ),
   },
@@ -54,6 +56,8 @@ export function ApprovedContributionsTable() {
     queryFn: () => apiFetch<Paginated<Contribution>>("/contributions?mine=true&page=1&limit=50"),
     enabled: Boolean(user),
   });
+  // limit=50 approximates "all" since the real endpoint always paginates
+  // and this table has no pagination control of its own.
 
   if (isPending) {
     return <Skeleton className="h-48 w-full rounded-xl" />;
@@ -65,7 +69,7 @@ export function ApprovedContributionsTable() {
     <DataTable
       columns={columns}
       rows={approved}
-      rowKey={(row) => row.id}
+      rowKey={(row) => row._id}
       emptyState={
         <EmptyState
           icon={Heart}

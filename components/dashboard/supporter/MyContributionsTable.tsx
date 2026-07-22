@@ -9,7 +9,7 @@ import { ContributionStatusBadge } from "@/components/dashboard/ContributionStat
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { Pagination } from "@/components/dashboard/Pagination";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatCredits, formatDate } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
@@ -21,12 +21,15 @@ const columns: Array<DataTableColumn<Contribution>> = [
   {
     key: "campaign",
     title: "Campaign",
+    // The real Contribution document doesn't denormalize the campaign
+    // title (only supporterName is denormalized) — showing the id here
+    // until either the server adds one or this does a client-side join.
     render: (row) => (
       <Link
         href={`/campaigns/${row.campaignId}`}
         className="font-medium underline-offset-4 hover:underline"
       >
-        {row.campaignTitle}
+        {row.campaignId}
       </Link>
     ),
   },
@@ -73,7 +76,7 @@ export function MyContributionsTable() {
       <DataTable
         columns={columns}
         rows={data.items}
-        rowKey={(row) => row.id}
+        rowKey={(row) => row._id}
         emptyState={
           <EmptyState
             icon={Heart}
@@ -95,7 +98,11 @@ export function MyContributionsTable() {
         ) : (
           <span />
         )}
-        <Pagination page={data.page} totalPages={data.totalPages} onChange={setPage} />
+        <Pagination
+          page={data.page}
+          totalPages={Math.ceil(data.total / data.limit)}
+          onChange={setPage}
+        />
       </div>
     </div>
   );
