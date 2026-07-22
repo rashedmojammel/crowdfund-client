@@ -6,7 +6,7 @@ import { FadeIn } from "@/components/animations/FadeIn";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { ContributionsToReviewTable } from "@/components/dashboard/creator/ContributionsToReviewTable";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatUsd } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
@@ -16,11 +16,12 @@ import type { CreatorStats } from "@/types";
 export function CreatorHome() {
   const user = useSessionStore((s) => s.user);
 
-  const { data: stats, isPending } = useQuery({
+  const { data: statsData, isPending } = useQuery({
     queryKey: ["stats", "creator", user?.email],
-    queryFn: () => apiFetch<CreatorStats>("/stats/creator"),
+    queryFn: () => apiFetch<{ stats: CreatorStats }>("/stats/creator"),
     enabled: Boolean(user),
   });
+  const stats = statsData?.stats;
 
   if (!user) return null;
 
@@ -28,11 +29,9 @@ export function CreatorHome() {
     <div className="flex flex-col gap-8">
       <FadeIn>
         <h2>Welcome back, {user.name.split(" ")[0]}</h2>
-        <p className="mt-2 text-sm opacity-70">
-          {stats && stats.pendingReviewCount > 0
-            ? `${stats.pendingReviewCount} contribution${stats.pendingReviewCount === 1 ? "" : "s"} waiting for your review below.`
-            : "Here's how your campaigns are performing."}
-        </p>
+        {/* Real /stats/creator has no pendingReviewCount — the table below
+            already surfaces what's pending. */}
+        <p className="mt-2 text-sm opacity-70">Here&rsquo;s how your campaigns are performing.</p>
       </FadeIn>
 
       {isPending || !stats ? (

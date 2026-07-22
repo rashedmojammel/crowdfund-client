@@ -5,7 +5,7 @@ import { CreditCard, Persons, PersonWorker, Wallet } from "@gravity-ui/icons";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { useSessionStore } from "@/lib/store";
 import type { PlatformStats } from "@/types";
@@ -13,11 +13,12 @@ import type { PlatformStats } from "@/types";
 export function AdminHome() {
   const user = useSessionStore((s) => s.user);
 
-  const { data: stats, isPending } = useQuery({
+  const { data: statsData, isPending } = useQuery({
     queryKey: ["stats", "platform"],
-    queryFn: () => apiFetch<PlatformStats>("/stats/platform"),
+    queryFn: () => apiFetch<{ stats: PlatformStats }>("/stats/platform"),
     enabled: Boolean(user),
   });
+  const stats = statsData?.stats;
 
   if (!user) return null;
 
@@ -53,16 +54,15 @@ export function AdminHome() {
           />
           <StatsCard
             label="Credits in wallets"
-            value={stats.totalCreditsInWallets}
+            value={stats.totalCredits}
             icon={Wallet}
             hint="Unspent credits across all users"
           />
           <StatsCard
             label="Payments received"
-            value={stats.totalPaymentsUsd}
-            prefix="$"
+            value={stats.totalPayments}
             icon={CreditCard}
-            hint="Total credit purchases"
+            hint="Count of successful credit purchases"
           />
         </StatsGrid>
       )}
