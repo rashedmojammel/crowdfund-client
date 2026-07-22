@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
+import { isRenderableCampaign } from "@/lib/campaign-guards";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { Campaign } from "@/types";
 
@@ -20,8 +21,6 @@ export function ManageCampaignsTable() {
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<Campaign | null>(null);
 
-  // NOTE: /campaigns/all has no matching real endpoint — see the same note
-  // in CampaignApprovalsTable.tsx.
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaigns", "all"],
     queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/all"),
@@ -118,11 +117,15 @@ export function ManageCampaignsTable() {
     return <Skeleton className="h-64 w-full rounded-xl" />;
   }
 
+  // The database still has a handful of legacy-schema documents (see
+  // lib/campaign-guards.ts) — drop them rather than crash the table.
+  const campaigns = data.campaigns.filter(isRenderableCampaign);
+
   return (
     <>
       <DataTable
         columns={columns}
-        rows={data.campaigns}
+        rows={campaigns}
         rowKey={(row) => row._id}
         emptyState={
           <EmptyState

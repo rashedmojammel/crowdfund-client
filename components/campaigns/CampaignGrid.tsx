@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StaggerChildren, StaggerItem } from "@/components/animations/StaggerChildren";
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
+import { isRenderableCampaign } from "@/lib/campaign-guards";
 import type { Campaign } from "@/types";
 
 /** Card-shaped skeleton so grids don't shift when data arrives. */
@@ -27,24 +28,6 @@ interface CampaignGridProps {
   skeletonCount?: number;
   /** Rendered instead of the grid when there are no campaigns. */
   emptyState?: ReactNode;
-}
-
-// The database currently has some legacy-schema documents (snake_case
-// fields from before the server's Mongoose model existed) mixed in with
-// real ones — every field CampaignCard reads comes back undefined for
-// those, which crashes next/image and creatorInitials outright. Drop
-// anything that doesn't have the shape a real campaign always has rather
-// than let one bad record take down the whole grid.
-function isRenderableCampaign(campaign: Campaign): boolean {
-  return (
-    typeof campaign._id === "string" &&
-    typeof campaign.title === "string" &&
-    typeof campaign.coverImage === "string" &&
-    campaign.coverImage.length > 0 &&
-    typeof campaign.creatorEmail === "string" &&
-    typeof campaign.fundingGoal === "number" &&
-    typeof campaign.amountRaised === "number"
-  );
 }
 
 /** Responsive campaign grid: 1 column mobile, 2 from 640px, 3 from 1024px. */

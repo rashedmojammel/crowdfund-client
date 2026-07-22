@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
+import { isRenderableCampaign } from "@/lib/campaign-guards";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { Campaign } from "@/types";
 
@@ -19,10 +20,6 @@ export function CampaignApprovalsTable() {
   const queryClient = useQueryClient();
   const [rejecting, setRejecting] = useState<Campaign | null>(null);
 
-  // NOTE: /campaigns/all has no matching real endpoint — the server only
-  // exposes the public approved-only list, the creator-scoped /mine list,
-  // and single-campaign GET. There is currently no admin "every status"
-  // list, so this table cannot load real data until the server adds one.
   const queryKey = ["campaigns", "all"] as const;
 
   const { data, isPending, isError, refetch } = useQuery({
@@ -158,7 +155,11 @@ export function CampaignApprovalsTable() {
     return <Skeleton className="h-48 w-full rounded-xl" />;
   }
 
-  const pending = data.campaigns.filter((c) => c.status === "pending");
+  // The database still has a handful of legacy-schema documents (see
+  // lib/campaign-guards.ts) — drop them rather than crash the table.
+  const pending = data.campaigns
+    .filter(isRenderableCampaign)
+    .filter((c) => c.status === "pending");
 
   return (
     <>
