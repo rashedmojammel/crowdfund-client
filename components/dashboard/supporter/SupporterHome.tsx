@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { CircleCheck, Clock, Heart } from "@gravity-ui/icons";
+import { Alert } from "@gravity-ui/uikit";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
@@ -14,7 +15,7 @@ import type { SupporterStats } from "@/types";
 export function SupporterHome() {
   const user = useSessionStore((s) => s.user);
 
-  const { data: statsData, isPending } = useQuery({
+  const { data: statsData, isPending, isError, refetch } = useQuery({
     queryKey: ["stats", "supporter", user?.email],
     queryFn: () => apiFetch<{ stats: SupporterStats }>("/stats/supporter"),
     enabled: Boolean(user),
@@ -30,7 +31,14 @@ export function SupporterHome() {
         <p className="mt-2 text-sm opacity-70">Here&rsquo;s how your support is doing.</p>
       </FadeIn>
 
-      {isPending || !stats ? (
+      {isError ? (
+        <Alert
+          theme="danger"
+          title="Couldn't load your stats"
+          message="Something went wrong while fetching this."
+          actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+        />
+      ) : isPending || !stats ? (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Skeleton className="h-32 rounded-xl" />
           <Skeleton className="h-32 rounded-xl" />
