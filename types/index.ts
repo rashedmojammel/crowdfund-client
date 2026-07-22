@@ -1,6 +1,13 @@
-// Shared domain types for FundSpark (client).
-// Mirrors the server's Mongoose models — keep field names in sync with
-// ../crowdfund-server/types/index.ts when the server comes online.
+// Shared domain types for FundSpark (client). These mirror the REAL server's
+// response shapes exactly (../crowdfund-server/lib/models/*.ts + app/api/**
+// route.ts) — Mongo documents come back with `_id`, camelCase field names
+// matching the Mongoose schemas, and list endpoints wrapped in
+// { items|campaigns|notifications|reports, total, page, limit }.
+//
+// Session-user shape (role/credits/signupBonusGranted) comes from BetterAuth
+// (lib/auth.ts additionalFields) and uses `id`, not `_id` — that's a
+// different system from the Mongo documents below and intentionally keeps
+// its own shape.
 
 export type UserRole = "supporter" | "creator" | "admin";
 
@@ -8,18 +15,25 @@ export type CampaignStatus = "pending" | "approved" | "rejected" | "suspended";
 
 export type ContributionStatus = "pending" | "approved" | "rejected";
 
-export type WithdrawalStatus = "pending" | "paid";
+export type WithdrawalStatus = "pending" | "approved";
 
 export type ReportStatus = "open" | "resolved" | "dismissed";
 
+export type ReportAction = "resolve" | "dismiss" | "suspend_campaign" | "delete_campaign";
+
+// Matches CAMPAIGN_CATEGORIES in ../crowdfund-server/types/index.ts exactly.
 export type CampaignCategory =
   | "technology"
+  | "art"
   | "education"
   | "health"
-  | "environment"
   | "community"
-  | "creative";
+  | "environment";
 
+// Matches PAYMENT_SYSTEMS in ../crowdfund-server/types/index.ts exactly.
+export type PaymentSystem = "bkash" | "nagad" | "rocket" | "bank";
+
+/** The authenticated session user — from BetterAuth, not a Mongo document. */
 export interface User {
   id: string;
   name: string;
@@ -32,130 +46,113 @@ export interface User {
   createdAt: string;
 }
 
+/** A row from GET /users (admin directory) — a raw Mongo User document. */
+export interface AdminUserRow {
+  _id: string;
+  name: string | null;
+  email: string;
+  role: UserRole;
+  credits: number;
+  image?: string;
+  createdAt: string;
+}
+
 export interface Campaign {
-  id: string;
+  _id: string;
   title: string;
   category: CampaignCategory;
-  /** Long-form pitch shown on the campaign details page. */
   story: string;
-  /** What backers get in return (perk / acknowledgement). */
-  reward: string;
-  /** Cover image URL. */
-  image: string;
-  /** Target amount in credits. */
-  funding_goal: number;
-  /** Sum of approved contributions in credits. */
-  amount_raised: number;
-  /** ISO date — campaign stops accepting contributions after this. */
+  coverImage: string;
+  fundingGoal: number;
+  minimumContribution: number;
+  amountRaised: number;
   deadline: string;
-  status: CampaignStatus;
+  reward: string;
   creatorEmail: string;
-  creatorName: string;
+  status: CampaignStatus;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Contribution {
-  id: string;
+  _id: string;
   campaignId: string;
-  campaignTitle: string;
   supporterEmail: string;
+  /** Denormalized from the user doc at creation time — always present. */
   supporterName: string;
-  /** Amount in credits, deducted from the supporter's wallet at creation. */
   amount: number;
   status: ContributionStatus;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Withdrawal {
-  id: string;
+  _id: string;
   creatorEmail: string;
-  creatorName: string;
   /** Credits being cashed out (minimum 200). */
   credits: number;
-  /** credits / 20 — the payout rate is 20 credits = $1. */
-  amountUsd: number;
-  paymentSystem: string;
+  /** USD payout — credits / 20, computed server-side. */
+  amount: number;
+  paymentSystem: PaymentSystem;
   accountNumber: string;
   status: WithdrawalStatus;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface Payment {
+  _id: string;
+  supporterEmail: string;
+  credits: number;
+  amountUsd: number;
+  stripeSessionId?: string;
+  stripePaymentIntent?: string;
+  status: "pending" | "succeeded";
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AppNotification {
-  id: string;
+  _id: string;
   toEmail: string;
   message: string;
-  /** In-app route the notification links to, e.g. /dashboard/my-contributions. */
   actionRoute: string;
   read: boolean;
   createdAt: string;
 }
 
 export interface Report {
-  id: string;
+  _id: string;
   campaignId: string;
-  campaignTitle: string;
   reporterEmail: string;
   reason: string;
-  details: string;
   status: ReportStatus;
-  createdAt: string;
-}
-
-export type CheckoutSessionStatus = "pending" | "completed" | "cancelled";
-
-export interface CheckoutSession {
-  id: string;
-  supporterEmail: string;
-  credits: number;
-  amountUsd: number;
-  status: CheckoutSessionStatus;
-  /** Where the client should navigate to pay — Stripe-hosted URL in production. */
-  url: string;
-  createdAt: string;
-}
-
-export interface Payment {
-  id: string;
-  supporterEmail: string;
-  /** Credits purchased. */
-  credits: number;
-  /** credits / 10 — the purchase rate is 10 credits = $1. */
-  amountUsd: number;
-  /** Stripe Checkout session id (mocked for now). */
-  sessionId: string;
   createdAt: string;
 }
 
 export interface Paginated<T> {
   items: T[];
+  total: number;
   page: number;
   limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface AuthResponse {
-  user: User;
-  token: string;
 }
 
 export interface PlatformStats {
   totalSupporters: number;
   totalCreators: number;
-  totalCreditsInWallets: number;
-  totalPaymentsUsd: number;
+  totalCredits: number;
+  /** Count of succeeded payments — NOT a dollar amount. */
+  totalPayments: number;
 }
 
 export interface CreatorStats {
   totalCampaigns: number;
   activeCampaigns: number;
   totalRaised: number;
-  pendingReviewCount: number;
 }
 
 export interface SupporterStats {
+  totalContributions: number;
+  pendingContributions: number;
   totalContributed: number;
-  pendingAmount: number;
-  approvedAmount: number;
-  campaignsBacked: number;
 }

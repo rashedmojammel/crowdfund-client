@@ -13,7 +13,7 @@ import type {
   Report,
   User,
   Withdrawal,
-} from "@/types";
+} from "@/lib/mock-types";
 
 /** Seed users carry a plaintext password — mock only, never returned by the API. */
 export interface MockUser extends User {

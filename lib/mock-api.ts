@@ -33,7 +33,7 @@ import type {
   User,
   UserRole,
   Withdrawal,
-} from "@/types";
+} from "@/lib/mock-types";
 
 export class ApiError extends Error {
   status: number;
