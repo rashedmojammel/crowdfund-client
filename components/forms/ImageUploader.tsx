@@ -16,7 +16,7 @@ interface ImageUploaderProps {
 
 /**
  * ImgBB file upload when NEXT_PUBLIC_IMGBB_KEY is set; otherwise a plain
- * URL input so the flow still works in mock mode.
+ * URL input so the form still works without an ImgBB key configured.
  */
 export function ImageUploader({ value, onChange, errorMessage, disabled }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);

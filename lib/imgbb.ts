@@ -1,4 +1,4 @@
-// ImgBB upload helper. When NEXT_PUBLIC_IMGBB_KEY is not set (mock mode),
+// ImgBB upload helper. When NEXT_PUBLIC_IMGBB_KEY is not set,
 // forms fall back to a plain URL input — see components/forms/ImageUploader.tsx.
 
 const IMGBB_KEY = process.env.NEXT_PUBLIC_IMGBB_KEY;

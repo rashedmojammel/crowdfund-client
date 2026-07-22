@@ -1,8 +1,9 @@
 "use client";
 
-// Mirrors the real BetterAuth session into lib/store.ts for the
-// still-mock-backed feature components that read the current user from
-// there. See lib/store.ts for why this bridge exists. Renders nothing.
+// Mirrors the real BetterAuth session into lib/store.ts for the feature
+// components that read the current user from there rather than calling
+// useSession() directly. See lib/store.ts for why this bridge exists.
+// Renders nothing.
 
 import { useEffect } from "react";
 import { useSession } from "@/lib/auth-client";

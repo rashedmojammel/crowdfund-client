@@ -1,11 +1,9 @@
 // Read-only mirror of the real BetterAuth session (see lib/auth-client.ts).
-// Auth itself is no longer mocked and nothing here persists to localStorage
-// anymore — but ~30 still-mock-backed feature components read "who's the
-// current user" via useSessionStore, and re-pointing every one of them at
-// useSession() individually is out of scope for the auth migration. Instead
-// <SessionSync> (components/auth/SessionSync.tsx, mounted once in
-// app/providers.tsx) keeps this store in sync with the real session, so
-// those components keep working unchanged.
+// Nothing here persists to localStorage — ~30 feature components read
+// "who's the current user" via useSessionStore rather than calling
+// useSession() directly, so <SessionSync> (components/auth/SessionSync.tsx,
+// mounted once in app/providers.tsx) keeps this store in sync with the real
+// session instead.
 //
 // Navbar, DashboardTopBar, the dashboard layout guard, and the role
 // dispatcher read useSession() directly instead of this mirror.
