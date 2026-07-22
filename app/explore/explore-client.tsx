@@ -18,7 +18,21 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { apiFetch } from "@/lib/api-client";
 import type { Campaign } from "@/types";
 
-/** Translate UI filter state into the API's query parameters. */
+interface CampaignsListResponse {
+  campaigns: Campaign[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+/**
+ * Translate UI filter state into the API's query parameters. The real server
+ * only supports ?category, ?page, and ?limit (max 50) — search/deadline/goal
+ * have no server-side equivalent (see the migration notes), so those filters
+ * currently don't narrow results; they're still sent (harmlessly ignored)
+ * pending a server change. limit=50 approximates "show everything" since
+ * there's no pagination control wired into this view yet.
+ */
 function toQueryString(filters: ExploreFilters, search: string): string {
   const params = new URLSearchParams();
   if (filters.category) params.set("category", filters.category);
@@ -30,8 +44,8 @@ function toQueryString(filters: ExploreFilters, search: string): string {
     params.set("maxGoal", "100000");
   }
   if (filters.goal === "over-100k") params.set("minGoal", "100000");
-  const qs = params.toString();
-  return qs ? `?${qs}` : "";
+  params.set("limit", "50");
+  return `?${params.toString()}`;
 }
 
 interface ExploreClientProps {
@@ -55,7 +69,7 @@ export function ExploreClient({ embedded = false }: ExploreClientProps) {
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaigns", "list", queryString],
-    queryFn: () => apiFetch<Campaign[]>(`/campaigns${queryString}`),
+    queryFn: () => apiFetch<CampaignsListResponse>(`/campaigns${queryString}`),
   });
 
   const basePath = embedded ? "/dashboard/explore-campaigns" : "/explore";
@@ -96,7 +110,7 @@ export function ExploreClient({ embedded = false }: ExploreClientProps) {
           </Alert>
         ) : (
           <CampaignGrid
-            campaigns={data}
+            campaigns={data?.campaigns}
             isLoading={isPending}
             emptyState={
               <EmptyState

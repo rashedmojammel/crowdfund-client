@@ -55,7 +55,7 @@ export function CampaignGrid({
   return (
     <StaggerChildren className={gridClasses}>
       {campaigns.map((campaign) => (
-        <StaggerItem key={campaign.id} className="h-full">
+        <StaggerItem key={campaign._id} className="h-full">
           <CampaignCard campaign={campaign} />
         </StaggerItem>
       ))}

@@ -25,8 +25,8 @@ const creatorInitials = (name: string) =>
 export function CampaignCard({ campaign }: CampaignCardProps) {
   const reduceMotion = useReducedMotion();
   const percent =
-    campaign.funding_goal > 0
-      ? Math.min(100, Math.round((campaign.amount_raised / campaign.funding_goal) * 100))
+    campaign.fundingGoal > 0
+      ? Math.min(100, Math.round((campaign.amountRaised / campaign.fundingGoal) * 100))
       : 0;
 
   return (
@@ -36,13 +36,13 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
       className="group flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow duration-300 hover:shadow-xl"
     >
       <Link
-        href={`/campaigns/${campaign.id}`}
+        href={`/campaigns/${campaign._id}`}
         className={cn("flex h-full flex-col rounded-xl", FOCUS_RING)}
         aria-label={`View details of ${campaign.title}`}
       >
         <div className="relative aspect-video overflow-hidden">
           <Image
-            src={campaign.image}
+            src={campaign.coverImage}
             alt={`Cover image for ${campaign.title}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -68,20 +68,20 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           <div className="flex items-center gap-2">
             <Avatar className="size-5">
               <AvatarFallback className="text-[10px]">
-                {creatorInitials(campaign.creatorName)}
+                {creatorInitials(campaign.creatorEmail)}
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm text-muted-foreground">by {campaign.creatorName}</span>
+            <span className="text-sm text-muted-foreground">by {campaign.creatorEmail}</span>
           </div>
 
           <div className="mt-auto flex flex-col gap-2">
-            <ProgressBar raised={campaign.amount_raised} goal={campaign.funding_goal} />
+            <ProgressBar raised={campaign.amountRaised} goal={campaign.fundingGoal} />
             <div className="flex items-baseline justify-between text-sm">
               <span className="font-semibold">
-                {campaign.amount_raised.toLocaleString("en-US")} credits
+                {campaign.amountRaised.toLocaleString("en-US")} credits
               </span>
               <span className="text-muted-foreground">
-                {percent}% of {campaign.funding_goal.toLocaleString("en-US")}
+                {percent}% of {campaign.fundingGoal.toLocaleString("en-US")}
               </span>
             </div>
           </div>

@@ -10,11 +10,11 @@ import type { CampaignCategory } from "@/types";
 
 const categoryIcons: Record<CampaignCategory, LucideIcon> = {
   technology: Cpu,
+  art: Palette,
   education: GraduationCap,
   health: HeartPulse,
-  environment: TreeDeciduous,
   community: Users,
-  creative: Palette,
+  environment: TreeDeciduous,
 };
 
 export function ExploreByCategory() {

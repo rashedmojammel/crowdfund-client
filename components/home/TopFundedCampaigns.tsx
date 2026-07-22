@@ -14,7 +14,7 @@ import type { Campaign } from "@/types";
 export function TopFundedCampaigns() {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaigns", "top-funded"],
-    queryFn: () => apiFetch<Campaign[]>("/campaigns/top-funded"),
+    queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/top-funded"),
   });
 
   return (
@@ -47,7 +47,7 @@ export function TopFundedCampaigns() {
             </AlertDescription>
           </Alert>
         ) : (
-          <CampaignGrid campaigns={data} isLoading={isPending} />
+          <CampaignGrid campaigns={data?.campaigns} isLoading={isPending} />
         )}
       </div>
     </section>

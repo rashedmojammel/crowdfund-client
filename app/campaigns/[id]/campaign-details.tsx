@@ -38,10 +38,11 @@ function DetailsSkeleton() {
 }
 
 export function CampaignDetails({ campaignId }: { campaignId: string }) {
-  const { data: campaign, isPending, isError } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["campaign", campaignId],
-    queryFn: () => apiFetch<Campaign>(`/campaigns/${campaignId}`),
+    queryFn: () => apiFetch<{ campaign: Campaign }>(`/campaigns/${campaignId}`),
   });
+  const campaign = data?.campaign;
 
   if (isPending) {
     return (
@@ -69,8 +70,8 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
   }
 
   const percent =
-    campaign.funding_goal > 0
-      ? Math.min(100, Math.round((campaign.amount_raised / campaign.funding_goal) * 100))
+    campaign.fundingGoal > 0
+      ? Math.min(100, Math.round((campaign.amountRaised / campaign.fundingGoal) * 100))
       : 0;
   const remaining = daysLeft(campaign.deadline);
 
@@ -92,7 +93,7 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
               <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <User className="size-4" aria-hidden="true" />
-                  {campaign.creatorName}
+                  {campaign.creatorEmail}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar className="size-4" aria-hidden="true" />
@@ -103,7 +104,7 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
 
             <div className="relative aspect-video overflow-hidden rounded-xl">
               <Image
-                src={campaign.image}
+                src={campaign.coverImage}
                 alt={`Cover image for ${campaign.title}`}
                 fill
                 priority
@@ -138,13 +139,13 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
           {/* Sidebar */}
           <aside className="flex flex-col gap-6 self-start lg:sticky lg:top-24">
             <div className="flex flex-col gap-4 rounded-xl bg-card p-4 shadow-sm md:p-6">
-              <ProgressBar raised={campaign.amount_raised} goal={campaign.funding_goal} />
+              <ProgressBar raised={campaign.amountRaised} goal={campaign.fundingGoal} />
               <div>
                 <p className="text-[24px] font-bold leading-[1.3]">
-                  {formatCredits(campaign.amount_raised)}
+                  {formatCredits(campaign.amountRaised)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {percent}% of {formatNumber(campaign.funding_goal)}-credit goal
+                  {percent}% of {formatNumber(campaign.fundingGoal)}-credit goal
                 </p>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
