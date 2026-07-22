@@ -14,8 +14,8 @@ interface CampaignCardProps {
   campaign: Campaign;
 }
 
-const creatorInitials = (name: string) =>
-  name
+const creatorInitials = (name: string | undefined) =>
+  (name ?? "?")
     .split(" ")
     .map((part) => part[0])
     .slice(0, 2)

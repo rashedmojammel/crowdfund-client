@@ -29,6 +29,24 @@ interface CampaignGridProps {
   emptyState?: ReactNode;
 }
 
+// The database currently has some legacy-schema documents (snake_case
+// fields from before the server's Mongoose model existed) mixed in with
+// real ones — every field CampaignCard reads comes back undefined for
+// those, which crashes next/image and creatorInitials outright. Drop
+// anything that doesn't have the shape a real campaign always has rather
+// than let one bad record take down the whole grid.
+function isRenderableCampaign(campaign: Campaign): boolean {
+  return (
+    typeof campaign._id === "string" &&
+    typeof campaign.title === "string" &&
+    typeof campaign.coverImage === "string" &&
+    campaign.coverImage.length > 0 &&
+    typeof campaign.creatorEmail === "string" &&
+    typeof campaign.fundingGoal === "number" &&
+    typeof campaign.amountRaised === "number"
+  );
+}
+
 /** Responsive campaign grid: 1 column mobile, 2 from 640px, 3 from 1024px. */
 export function CampaignGrid({
   campaigns,
@@ -48,13 +66,15 @@ export function CampaignGrid({
     );
   }
 
-  if (!campaigns || campaigns.length === 0) {
+  const renderable = campaigns?.filter(isRenderableCampaign);
+
+  if (!renderable || renderable.length === 0) {
     return <>{emptyState}</>;
   }
 
   return (
     <StaggerChildren className={gridClasses}>
-      {campaigns.map((campaign) => (
+      {renderable.map((campaign) => (
         <StaggerItem key={campaign._id} className="h-full">
           <CampaignCard campaign={campaign} />
         </StaggerItem>
