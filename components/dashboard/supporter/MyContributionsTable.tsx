@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Button } from "@gravity-ui/uikit";
+import { Alert, Button } from "@gravity-ui/uikit";
 import { Heart } from "@gravity-ui/icons";
 import { ContributionStatusBadge } from "@/components/dashboard/ContributionStatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
@@ -57,7 +57,7 @@ export function MyContributionsTable() {
   const user = useSessionStore((s) => s.user);
   const [page, setPage] = useState(1);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["contributions", "mine", user?.email, page],
     queryFn: () =>
       apiFetch<Paginated<Contribution>>(
@@ -66,6 +66,19 @@ export function MyContributionsTable() {
     enabled: Boolean(user),
     placeholderData: keepPreviousData, // keep rows visible while the next page loads
   });
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load your contributions"
+        message="Something went wrong while fetching your contribution history."
+        actions={
+          <Alert.Action onClick={() => refetch()}>Try again</Alert.Action>
+        }
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-64 w-full rounded-xl" />;
