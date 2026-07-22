@@ -5,11 +5,11 @@ import { Button } from "@gravity-ui/uikit";
 import { CreditCard } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatCredits, formatDate, formatUsd } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
-import type { Payment } from "@/types";
+import type { Paginated, Payment } from "@/types";
 
 const columns: Array<DataTableColumn<Payment>> = [
   {
@@ -40,7 +40,7 @@ const columns: Array<DataTableColumn<Payment>> = [
     title: "Receipt",
     align: "right",
     render: (row) => (
-      <span className="font-mono text-xs opacity-60">{row.sessionId}</span>
+      <span className="font-mono text-xs opacity-60">{row.stripeSessionId ?? "—"}</span>
     ),
   },
 ];
@@ -51,7 +51,8 @@ export function PaymentHistoryTable() {
 
   const { data, isPending } = useQuery({
     queryKey: ["payments", user?.email],
-    queryFn: () => apiFetch<Payment[]>("/payments"),
+    // limit=50 approximates "all" — this table has no pagination control.
+    queryFn: () => apiFetch<Paginated<Payment>>("/payments?limit=50"),
     enabled: Boolean(user),
   });
 
@@ -62,8 +63,8 @@ export function PaymentHistoryTable() {
   return (
     <DataTable
       columns={columns}
-      rows={data}
-      rowKey={(row) => row.id}
+      rows={data.items}
+      rowKey={(row) => row._id}
       emptyState={
         <EmptyState
           icon={CreditCard}

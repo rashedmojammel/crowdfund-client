@@ -1,18 +1,20 @@
 "use client";
 
-// Stand-in for Stripe's hosted checkout page, reached by the same redirect
-// the real integration will use. Delete this route once the server creates
-// real Stripe Checkout Sessions.
+// Stand-in for Stripe's hosted checkout page. UNREACHABLE now — the real
+// POST /payments always returns an absolute Stripe-hosted URL, so
+// purchase-credit/page.tsx never routes here anymore. Left in place
+// per the mock-cleanup plan (see lib/mock-api.ts) and decoupled from the
+// real @/types, which no longer describes this mock shape.
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, Label } from "@gravity-ui/uikit";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { Pressable } from "@/components/animations/Pressable";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatCredits, formatUsd } from "@/lib/format";
-import type { CheckoutSession, Payment } from "@/types";
+import type { CheckoutSession, Payment } from "@/lib/mock-types";
 
 export function CheckoutClient() {
   const router = useRouter();

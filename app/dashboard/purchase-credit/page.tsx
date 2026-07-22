@@ -1,12 +1,9 @@
 "use client";
 
-// Stripe Checkout flow: Buy → POST /payments creates a checkout session →
-// redirect to its URL. In mock mode that URL is the in-app /mock-checkout
-// page; with the real server it's Stripe's hosted checkout — the only
-// difference is where the redirect lands.
+// Stripe Checkout flow: Buy → POST /payments creates a Stripe Checkout
+// Session → redirect to its hosted URL.
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "@gravity-ui/uikit";
 import { FadeIn } from "@/components/animations/FadeIn";
@@ -19,29 +16,23 @@ import { apiFetch } from "@/lib/api-client";
 import { formatCredits } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
 import { CREDIT_PACKAGES } from "@/lib/utils";
-import type { CheckoutSession } from "@/types";
 
 export default function PurchaseCreditPage() {
-  const router = useRouter();
   const user = useSessionStore((s) => s.user);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const checkout = useMutation({
+    // Real POST /payments requires both credits and amountUsd — the pair
+    // must exactly match one of the four CREDIT_PACKAGES on the server.
     mutationFn: (pkg: CreditPackage) =>
-      apiFetch<CheckoutSession>("/payments", {
+      apiFetch<{ url: string }>("/payments", {
         method: "POST",
-        body: { credits: pkg.credits },
+        body: { credits: pkg.credits, amountUsd: pkg.priceUsd },
       }),
-    onSuccess: (session) => {
-      // Real Stripe sessions have an absolute https URL — a full navigation.
-      // The mock session URL is an in-app route, so keep the SPA alive
-      // (a hard reload would wipe the in-memory mock session).
-      if (session.url.startsWith("http")) {
-        window.location.assign(session.url);
-      } else {
-        router.push(session.url);
-      }
+    onSuccess: ({ url }) => {
+      // Always an absolute Stripe-hosted URL — a full navigation.
+      window.location.assign(url);
     },
     onError: (err) => {
       setError(err instanceof Error ? err.message : "Couldn't start checkout");
