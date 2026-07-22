@@ -8,7 +8,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { RoleBadge } from "@/components/dashboard/RoleBadge";
 import { useCommandPaletteStore } from "@/lib/command-palette-store";
-import { formatNumber } from "@/lib/format";
+import { formatCredits } from "@/lib/format";
 import { useSession } from "@/lib/auth-client";
 import { cn, FOCUS_RING } from "@/lib/utils";
 import type { UserRole } from "@/types";
@@ -49,7 +49,7 @@ export function DashboardTopBar() {
               variant="outline"
               className="border-[var(--fs-success)]/40 text-[var(--fs-success)]"
             >
-              {formatNumber(user.credits)} credits
+              {formatCredits(user.credits)}
             </Badge>
           </span>
           <ThemeToggle />

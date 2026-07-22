@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate, useInView, useReducedMotion } from "motion/react";
+import { formatNumber } from "@/lib/format";
 
 interface CountUpProps {
   value: number;
@@ -37,7 +38,7 @@ export function CountUp({ value, prefix = "", suffix = "", className }: CountUpP
   return (
     <span ref={ref} className={className}>
       {prefix}
-      {shown.toLocaleString("en-US")}
+      {formatNumber(shown)}
       {suffix}
     </span>
   );
