@@ -13,10 +13,17 @@ interface CreditPackageCardProps {
   onBuy: (pkg: CreditPackage) => void;
   /** True while this specific package's purchase is in flight. */
   loading?: boolean;
+  /** True while ANY package's purchase is in flight — blocks a second, concurrent checkout. */
+  disabled?: boolean;
 }
 
 /** One of the four purchasable credit packages (10 credits = $1). */
-export function CreditPackageCard({ pkg, onBuy, loading = false }: CreditPackageCardProps) {
+export function CreditPackageCard({
+  pkg,
+  onBuy,
+  loading = false,
+  disabled = false,
+}: CreditPackageCardProps) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -38,6 +45,7 @@ export function CreditPackageCard({ pkg, onBuy, loading = false }: CreditPackage
             size="l"
             width="max"
             loading={loading}
+            disabled={disabled}
             onClick={() => onBuy(pkg)}
           >
             Buy {formatNumber(pkg.credits)} credits
