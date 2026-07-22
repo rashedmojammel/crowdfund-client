@@ -3,9 +3,10 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Loader2, TriangleAlert } from "lucide-react";
+import { Bell, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDismissable } from "@/hooks/useDismissable";
 import { apiFetch } from "@/lib/api-client";
@@ -110,13 +111,11 @@ export function NotificationBell() {
 
             <div className="max-h-96 overflow-y-auto">
               {isError ? (
-                <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
-                  <TriangleAlert className="size-5 text-destructive" aria-hidden="true" />
-                  <p className="text-sm text-muted-foreground">Couldn&rsquo;t load notifications.</p>
-                  <Button variant="outline" size="sm" onClick={() => refetch()}>
-                    Try again
-                  </Button>
-                </div>
+                <ErrorState
+                  compact
+                  message="Couldn't load notifications."
+                  onRetry={() => refetch()}
+                />
               ) : isPending ? (
                 <div className="flex flex-col gap-3 p-4">
                   <Skeleton className="h-10 w-full" />

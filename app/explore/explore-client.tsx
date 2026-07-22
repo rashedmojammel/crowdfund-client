@@ -98,16 +98,11 @@ export function ExploreClient({ embedded = false }: ExploreClientProps) {
 
       <div className="mt-8">
         {isError ? (
-          <Alert variant="destructive">
-            <CircleAlert />
-            <AlertTitle>Couldn&rsquo;t load campaigns</AlertTitle>
-            <AlertDescription>
-              Something went wrong while fetching campaigns.
-              <Button variant="outline" size="sm" className="mt-2 w-fit" onClick={() => refetch()}>
-                Try again
-              </Button>
-            </AlertDescription>
-          </Alert>
+          <ErrorState
+            title="Couldn't load campaigns"
+            message="Something went wrong while fetching campaigns."
+            onRetry={() => refetch()}
+          />
         ) : (
           <CampaignGrid
             campaigns={data?.campaigns}

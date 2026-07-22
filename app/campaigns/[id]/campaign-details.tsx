@@ -7,6 +7,7 @@ import { Calendar, Gift, LogIn, TriangleAlert, User } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge";
@@ -16,7 +17,7 @@ import { ReportCampaignButton } from "@/components/campaigns/ReportCampaignButto
 import { apiFetch } from "@/lib/api-client";
 import { useSession } from "@/lib/auth-client";
 import { BLUR_DATA_URL } from "@/lib/constants";
-import { daysLeft, formatCredits, formatDate, formatNumber } from "@/lib/format";
+import { formatCredits, formatDate, formatNumber, formatPercent, formatRelative } from "@/lib/format";
 import type { Campaign } from "@/types";
 
 /** Mirrors the final two-column layout so nothing shifts when data lands. */
@@ -45,7 +46,7 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
   // The server requires auth for campaign detail (unlike the public
   // explore list), so wait for the session to resolve before deciding —
   // and don't even attempt the fetch for a logged-out visitor.
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaign", campaignId],
     queryFn: () => apiFetch<{ campaign: Campaign }>(`/campaigns/${campaignId}`),
     enabled: Boolean(user),
@@ -85,7 +86,19 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
     );
   }
 
-  if (isError || !campaign) {
+  if (isError) {
+    return (
+      <div className="container-fs py-12">
+        <ErrorState
+          title="Couldn't load this campaign"
+          message="Something went wrong while fetching the campaign details."
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
+
+  if (!campaign) {
     return (
       <div className="container-fs py-12">
         <Alert variant="destructive">
@@ -101,12 +114,6 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
       </div>
     );
   }
-
-  const percent =
-    campaign.fundingGoal > 0
-      ? Math.min(100, Math.round((campaign.amountRaised / campaign.fundingGoal) * 100))
-      : 0;
-  const remaining = daysLeft(campaign.deadline);
 
   return (
     <div className="container-fs py-12">
@@ -178,14 +185,13 @@ export function CampaignDetails({ campaignId }: { campaignId: string }) {
                   {formatCredits(campaign.amountRaised)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {percent}% of {formatNumber(campaign.fundingGoal)}-credit goal
+                  {formatPercent(campaign.amountRaised, campaign.fundingGoal)} of{" "}
+                  {formatNumber(campaign.fundingGoal)}-credit goal
                 </p>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="size-4" aria-hidden="true" />
-                {remaining > 0
-                  ? `Ends ${formatDate(campaign.deadline)} — ${remaining} day${remaining === 1 ? "" : "s"} left`
-                  : `Ended ${formatDate(campaign.deadline)}`}
+                {formatDate(campaign.deadline)} · {formatRelative(campaign.deadline)}
               </div>
             </div>
 
