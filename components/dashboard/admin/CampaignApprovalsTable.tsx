@@ -51,7 +51,10 @@ export function CampaignApprovalsTable() {
       await queryClient.cancelQueries({ queryKey });
       return { previous: applyOptimisticStatus(c._id, "approved") };
     },
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast.success("Campaign approved.");
+    },
     onError: (error, _c, context) => {
       if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       toast.error(error instanceof Error ? error.message : "Couldn't approve this campaign");
@@ -67,7 +70,10 @@ export function CampaignApprovalsTable() {
       setRejecting(null);
       return { previous };
     },
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      toast.success("Campaign rejected.");
+    },
     onError: (error, _c, context) => {
       if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       toast.error(error instanceof Error ? error.message : "Couldn't reject this campaign");

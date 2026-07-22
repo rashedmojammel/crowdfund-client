@@ -33,6 +33,7 @@ export function WithdrawalRequestsTable() {
       queryClient.invalidateQueries({ queryKey: ["withdrawals"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       setPaying(null);
+      toast.success("Withdrawal marked as paid.");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Couldn't mark this withdrawal paid");
