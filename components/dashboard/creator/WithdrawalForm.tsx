@@ -5,6 +5,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, Loader2, TriangleAlert } from "lucide-react";
+import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,8 +91,11 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
       setSubmitted(withdrawal);
       reset();
       queryClient.invalidateQueries({ queryKey: ["withdrawals"] });
+      toast.success("Withdrawal request submitted.");
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Withdrawal request failed");
+      const message = error instanceof Error ? error.message : "Withdrawal request failed";
+      setFormError(message);
+      toast.error(message);
     }
   });
 
@@ -199,7 +203,7 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
       <Pressable>
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-          Request withdrawal
+          {isSubmitting ? "Submitting…" : "Request withdrawal"}
         </Button>
       </Pressable>
     </form>

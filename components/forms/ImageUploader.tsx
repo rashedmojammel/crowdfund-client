@@ -12,13 +12,21 @@ interface ImageUploaderProps {
   onChange: (url: string) => void;
   errorMessage?: string;
   disabled?: boolean;
+  /** Lets the parent form gate its submit button while an upload is in flight. */
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 /**
  * ImgBB file upload when NEXT_PUBLIC_IMGBB_KEY is set; otherwise a plain
  * URL input so the form still works without an ImgBB key configured.
  */
-export function ImageUploader({ value, onChange, errorMessage, disabled }: ImageUploaderProps) {
+export function ImageUploader({
+  value,
+  onChange,
+  errorMessage,
+  disabled,
+  onUploadingChange,
+}: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -59,12 +67,14 @@ export function ImageUploader({ value, onChange, errorMessage, disabled }: Image
     if (!file) return;
     setUploadError(null);
     setUploading(true);
+    onUploadingChange?.(true);
     try {
       onChange(await uploadToImgBB(file));
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : "Image upload failed");
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   };
 

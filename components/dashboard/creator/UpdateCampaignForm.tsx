@@ -10,6 +10,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, TriangleAlert } from "lucide-react";
+import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ export function UpdateCampaignForm({ campaign }: UpdateCampaignFormProps) {
       });
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       queryClient.invalidateQueries({ queryKey: ["campaign", campaign._id] });
+      toast.success("Campaign updated.");
       router.push("/dashboard/my-campaigns");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "Couldn't save changes");
@@ -135,7 +137,7 @@ export function UpdateCampaignForm({ campaign }: UpdateCampaignFormProps) {
         <Pressable className="grow">
           <Button type="submit" size="lg" className="w-full" disabled={isSubmitting || !isDirty}>
             {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
-            Save changes
+            {isSubmitting ? "Saving…" : "Save changes"}
           </Button>
         </Pressable>
         <Button variant="ghost" size="lg" asChild>
