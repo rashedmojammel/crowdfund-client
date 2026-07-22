@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Label } from "@gravity-ui/uikit";
+import { Alert, Label } from "@gravity-ui/uikit";
 import { CircleDollar } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -57,12 +57,23 @@ const columns: Array<DataTableColumn<Withdrawal>> = [
 export function WithdrawalHistoryTable() {
   const user = useSessionStore((s) => s.user);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["withdrawals", "mine", user?.email],
     // limit=50 approximates "all" — this table has no pagination control.
     queryFn: () => apiFetch<Paginated<Withdrawal>>("/withdrawals?mine=true&limit=50"),
     enabled: Boolean(user),
   });
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load withdrawal history"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-48 w-full rounded-xl" />;
