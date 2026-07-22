@@ -69,7 +69,7 @@ export function ExploreClient({ embedded = false }: ExploreClientProps) {
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaigns", "list", queryString],
-    queryFn: () => apiFetch<CampaignsListResponse>(`/campaigns${queryString}`),
+    queryFn: () => apiFetch<CampaignsListResponse>(`/campaigns${queryString}`, { public: true }),
   });
 
   const basePath = embedded ? "/dashboard/explore-campaigns" : "/explore";

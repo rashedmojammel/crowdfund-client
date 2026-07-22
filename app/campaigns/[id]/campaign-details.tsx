@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Gift, TriangleAlert, User } from "lucide-react";
+import { Calendar, Gift, LogIn, TriangleAlert, User } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { ContributeForm } from "@/components/campaigns/ContributeForm";
 import { ProgressBar } from "@/components/campaigns/ProgressBar";
 import { ReportCampaignButton } from "@/components/campaigns/ReportCampaignButton";
 import { apiFetch } from "@/lib/api-client";
+import { useSession } from "@/lib/auth-client";
 import { BLUR_DATA_URL } from "@/lib/constants";
 import { daysLeft, formatCredits, formatDate, formatNumber } from "@/lib/format";
 import type { Campaign } from "@/types";
@@ -38,11 +39,43 @@ function DetailsSkeleton() {
 }
 
 export function CampaignDetails({ campaignId }: { campaignId: string }) {
+  const { data: session, isPending: isSessionPending } = useSession();
+  const user = session?.user;
+
+  // The server requires auth for campaign detail (unlike the public
+  // explore list), so wait for the session to resolve before deciding —
+  // and don't even attempt the fetch for a logged-out visitor.
   const { data, isPending, isError } = useQuery({
     queryKey: ["campaign", campaignId],
     queryFn: () => apiFetch<{ campaign: Campaign }>(`/campaigns/${campaignId}`),
+    enabled: Boolean(user),
   });
   const campaign = data?.campaign;
+
+  if (isSessionPending) {
+    return (
+      <div className="container-fs py-12">
+        <DetailsSkeleton />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container-fs py-12">
+        <Alert>
+          <LogIn />
+          <AlertTitle>Sign in to view this campaign</AlertTitle>
+          <AlertDescription>
+            Campaign details are only visible to signed-in members.
+            <Button size="sm" className="mt-2 w-fit" asChild>
+              <Link href="/login">Log in</Link>
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   if (isPending) {
     return (

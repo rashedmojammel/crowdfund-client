@@ -20,14 +20,23 @@ export class ApiError extends Error {
 export interface ApiFetchOptions {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
+  /**
+   * Set for endpoints the server itself treats as public (the campaign
+   * list, top-funded). Skips requiring a session — a logged-out visitor
+   * still gets the data instead of a 401 from our own token route before
+   * the request ever reaches the real server. If a session does exist the
+   * token is still attached, so the call is identical either way for a
+   * logged-in visitor.
+   */
+  public?: boolean;
 }
 
 const SERVER_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
-/** Fetches a fresh short-lived JWT for the real server from our own BetterAuth route. */
-async function getServerToken(): Promise<string> {
+/** Fetches a fresh short-lived JWT for the real server from our own BetterAuth route, or null if there's no session. */
+async function getServerToken(): Promise<string | null> {
   const res = await fetch("/api/auth/token");
-  if (!res.ok) throw new ApiError("Not authenticated", 401);
+  if (!res.ok) return null;
   const { token } = (await res.json()) as { token: string };
   return token;
 }
@@ -44,11 +53,15 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   const method = options.method ?? "GET";
   const token = await getServerToken();
 
+  if (!token && !options.public) {
+    throw new ApiError("Not authenticated", 401);
+  }
+
   const res = await fetch(toServerUrl(path), {
     method,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   });

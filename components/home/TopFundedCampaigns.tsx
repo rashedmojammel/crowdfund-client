@@ -15,7 +15,7 @@ import type { Campaign } from "@/types";
 export function TopFundedCampaigns() {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaigns", "top-funded"],
-    queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/top-funded"),
+    queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/top-funded", { public: true }),
   });
 
   return (
