@@ -8,7 +8,7 @@ import { Ban, Flag, TrashBin, Xmark } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatDate } from "@/lib/format";
 import type { Report, ReportStatus } from "@/types";
@@ -28,7 +28,7 @@ export function ReportsTable() {
 
   const { data, isPending } = useQuery({
     queryKey: ["reports"],
-    queryFn: () => apiFetch<Report[]>("/reports"),
+    queryFn: () => apiFetch<{ reports: Report[] }>("/reports"),
   });
 
   const invalidate = () => {
@@ -38,14 +38,15 @@ export function ReportsTable() {
     queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
+  // The real PATCH /reports/:id takes a single { action } — suspend_campaign
+  // and delete_campaign act on the campaign AND resolve the report
+  // atomically server-side, replacing what used to be two separate calls.
   const suspend = useMutation({
-    mutationFn: async (report: Report) => {
-      await apiFetch(`/campaigns/${report.campaignId}/suspend`, { method: "PATCH" });
-      await apiFetch(`/reports/${report.id}`, {
+    mutationFn: (report: Report) =>
+      apiFetch(`/reports/${report._id}`, {
         method: "PATCH",
-        body: { status: "resolved" },
-      });
-    },
+        body: { action: "suspend_campaign" },
+      }),
     onSuccess: () => {
       invalidate();
       setConfirming(null);
@@ -53,13 +54,11 @@ export function ReportsTable() {
   });
 
   const removeCampaign = useMutation({
-    mutationFn: async (report: Report) => {
-      await apiFetch(`/campaigns/${report.campaignId}`, { method: "DELETE" });
-      await apiFetch(`/reports/${report.id}`, {
+    mutationFn: (report: Report) =>
+      apiFetch(`/reports/${report._id}`, {
         method: "PATCH",
-        body: { status: "resolved" },
-      });
-    },
+        body: { action: "delete_campaign" },
+      }),
     onSuccess: () => {
       invalidate();
       setConfirming(null);
@@ -68,7 +67,7 @@ export function ReportsTable() {
 
   const dismiss = useMutation({
     mutationFn: (report: Report) =>
-      apiFetch(`/reports/${report.id}`, { method: "PATCH", body: { status: "dismissed" } }),
+      apiFetch(`/reports/${report._id}`, { method: "PATCH", body: { action: "dismiss" } }),
     onSuccess: invalidate,
   });
 
@@ -76,24 +75,22 @@ export function ReportsTable() {
     {
       key: "campaign",
       title: "Campaign",
+      // No campaignTitle on the real Report document — only campaignId.
       render: (row) => (
         <Link
           href={`/campaigns/${row.campaignId}`}
           className="font-medium underline-offset-4 hover:underline"
         >
-          {row.campaignTitle}
+          {row.campaignId}
         </Link>
       ),
     },
     {
       key: "report",
       title: "Report",
-      render: (row) => (
-        <div className="max-w-xs">
-          <p className="font-medium">{row.reason}</p>
-          <p className="line-clamp-2 text-xs opacity-60">{row.details}</p>
-        </div>
-      ),
+      // The real Report has a single free-text `reason` field, no separate
+      // `details` — ReportCampaignButton folds both into it on submit.
+      render: (row) => <p className="line-clamp-2 max-w-xs text-sm">{row.reason}</p>,
     },
     {
       key: "reporter",
@@ -127,7 +124,7 @@ export function ReportsTable() {
               view="flat-warning"
               size="s"
               title="Suspend campaign"
-              aria-label={`Suspend ${row.campaignTitle}`}
+              aria-label={`Suspend report on campaign ${row.campaignId}`}
               onClick={() => setConfirming({ report: row, action: "suspend" })}
             >
               <Icon data={Ban} size={16} />
@@ -136,7 +133,7 @@ export function ReportsTable() {
               view="flat-danger"
               size="s"
               title="Delete campaign"
-              aria-label={`Delete ${row.campaignTitle}`}
+              aria-label={`Delete campaign ${row.campaignId}`}
               onClick={() => setConfirming({ report: row, action: "delete" })}
             >
               <Icon data={TrashBin} size={16} />
@@ -145,8 +142,8 @@ export function ReportsTable() {
               view="flat"
               size="s"
               title="Dismiss report"
-              aria-label={`Dismiss report on ${row.campaignTitle}`}
-              loading={dismiss.isPending && dismiss.variables?.id === row.id}
+              aria-label={`Dismiss report on campaign ${row.campaignId}`}
+              loading={dismiss.isPending && dismiss.variables?._id === row._id}
               onClick={() => dismiss.mutate(row)}
             >
               <Icon data={Xmark} size={16} />
@@ -166,8 +163,8 @@ export function ReportsTable() {
     <>
       <DataTable
         columns={columns}
-        rows={data}
-        rowKey={(row) => row.id}
+        rows={data.reports}
+        rowKey={(row) => row._id}
         emptyState={
           <EmptyState
             icon={Flag}
@@ -183,8 +180,8 @@ export function ReportsTable() {
         message={
           confirming
             ? isSuspend
-              ? `"${confirming.report.campaignTitle}" stops accepting contributions and the creator is notified. The report is marked resolved.`
-              : `"${confirming.report.campaignTitle}" is removed permanently and approved backers are refunded. The report is marked resolved.`
+              ? `Campaign ${confirming.report.campaignId} stops accepting contributions and the creator is notified. The report is marked resolved.`
+              : `Campaign ${confirming.report.campaignId} is removed permanently and approved backers are refunded. The report is marked resolved.`
             : ""
         }
         confirmText={isSuspend ? "Suspend campaign" : "Delete and refund backers"}

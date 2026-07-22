@@ -8,24 +8,25 @@ import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTabl
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { RoleDropdown } from "@/components/dashboard/admin/RoleDropdown";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatCredits, formatDate } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
-import type { User } from "@/types";
+import type { AdminUserRow, Paginated } from "@/types";
 
 export function ManageUsersTable() {
   const queryClient = useQueryClient();
   const sessionUser = useSessionStore((s) => s.user);
-  const [deleting, setDeleting] = useState<User | null>(null);
+  const [deleting, setDeleting] = useState<AdminUserRow | null>(null);
 
   const { data, isPending } = useQuery({
     queryKey: ["users"],
-    queryFn: () => apiFetch<User[]>("/users"),
+    // limit=50 approximates "all" — this table has no pagination control.
+    queryFn: () => apiFetch<Paginated<AdminUserRow>>("/users?limit=50"),
   });
 
   const remove = useMutation({
-    mutationFn: (u: User) => apiFetch(`/users/${u.id}`, { method: "DELETE" }),
+    mutationFn: (u: AdminUserRow) => apiFetch(`/users/${u._id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
@@ -33,17 +34,17 @@ export function ManageUsersTable() {
     },
   });
 
-  const columns: Array<DataTableColumn<User>> = [
+  const columns: Array<DataTableColumn<AdminUserRow>> = [
     {
       key: "user",
       title: "User",
       sortable: true,
-      sortValue: (row) => row.name,
+      sortValue: (row) => row.name ?? row.email,
       render: (row) => (
         <div className="flex items-center gap-3">
-          <Avatar imgUrl={row.image} text={row.name} size="s" />
+          <Avatar imgUrl={row.image} text={row.name ?? row.email} size="s" />
           <div>
-            <p className="font-medium">{row.name}</p>
+            <p className="font-medium">{row.name ?? row.email}</p>
             <p className="text-xs opacity-60">{row.email}</p>
           </div>
         </div>
@@ -87,7 +88,7 @@ export function ManageUsersTable() {
                   ? "Admin accounts can't be deleted"
                   : "Delete user"
             }
-            aria-label={`Delete ${row.name}`}
+            aria-label={`Delete ${row.name ?? row.email}`}
             disabled={isSelf || isAdmin}
             onClick={() => setDeleting(row)}
           >
@@ -106,8 +107,8 @@ export function ManageUsersTable() {
     <>
       <DataTable
         columns={columns}
-        rows={data}
-        rowKey={(row) => row.id}
+        rows={data.items}
+        rowKey={(row) => row._id}
         emptyState={
           <EmptyState
             icon={Persons}
@@ -122,7 +123,7 @@ export function ManageUsersTable() {
         title="Delete this user?"
         message={
           deleting
-            ? `${deleting.name} (${deleting.email}) will lose access permanently, along with their ${formatCredits(deleting.credits)}. This can't be undone.`
+            ? `${deleting.name ?? deleting.email} (${deleting.email}) will lose access permanently, along with their ${formatCredits(deleting.credits)}. This can't be undone.`
             : ""
         }
         confirmText="Delete user"

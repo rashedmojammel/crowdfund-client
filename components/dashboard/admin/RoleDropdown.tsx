@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Select } from "@gravity-ui/uikit";
 import { apiFetch } from "@/lib/api-client";
 import { useSessionStore } from "@/lib/store";
-import type { User, UserRole } from "@/types";
+import type { AdminUserRow, UserRole } from "@/types";
 
 const ROLE_OPTIONS: Array<{ value: UserRole; content: string }> = [
   { value: "supporter", content: "Supporter" },
@@ -13,7 +13,7 @@ const ROLE_OPTIONS: Array<{ value: UserRole; content: string }> = [
 ];
 
 interface RoleDropdownProps {
-  user: User;
+  user: AdminUserRow;
 }
 
 /** Per-row role selector — PATCHes /users/:id/role on change. */
@@ -24,7 +24,10 @@ export function RoleDropdown({ user }: RoleDropdownProps) {
 
   const updateRole = useMutation({
     mutationFn: (role: UserRole) =>
-      apiFetch<User>(`/users/${user.id}/role`, { method: "PATCH", body: { role } }),
+      apiFetch<{ user: AdminUserRow }>(`/users/${user._id}/role`, {
+        method: "PATCH",
+        body: { role },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
@@ -43,7 +46,7 @@ export function RoleDropdown({ user }: RoleDropdownProps) {
       options={ROLE_OPTIONS}
       disabled={isSelf || updateRole.isPending}
       title={isSelf ? "You can't change your own role" : undefined}
-      aria-label={`Role of ${user.name}`}
+      aria-label={`Role of ${user.name ?? user.email}`}
     />
   );
 }
