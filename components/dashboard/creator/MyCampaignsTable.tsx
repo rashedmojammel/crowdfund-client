@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Icon } from "@gravity-ui/uikit";
+import { Alert, Button, Icon } from "@gravity-ui/uikit";
 import { CirclePlus, Pencil, TrashBin } from "@gravity-ui/icons";
 import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
@@ -21,7 +21,7 @@ export function MyCampaignsTable() {
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<Campaign | null>(null);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["campaigns", "mine", user?.email],
     queryFn: () => apiFetch<{ campaigns: Campaign[] }>("/campaigns/mine"),
     enabled: Boolean(user),
@@ -121,6 +121,17 @@ export function MyCampaignsTable() {
       ),
     },
   ];
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load your campaigns"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-64 w-full rounded-xl" />;
