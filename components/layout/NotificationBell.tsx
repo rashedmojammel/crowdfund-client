@@ -29,14 +29,22 @@ export function NotificationBell() {
     refetchInterval: 30_000,
   });
 
-  const { data: notifications, isPending } = useQuery({
+  const { data: notificationsData, isPending } = useQuery({
     queryKey: ["notifications", "list", user?.email],
-    queryFn: () => apiFetch<AppNotification[]>("/notifications"),
+    queryFn: () => apiFetch<{ notifications: AppNotification[] }>("/notifications"),
     enabled: Boolean(user) && open,
   });
+  const notifications = notificationsData?.notifications;
 
+  // The real PATCH /notifications marks specific ids read (no bare
+  // "mark everything" call) — send every currently-unread id from the list
+  // already fetched for this open panel.
   const markAllRead = useMutation({
-    mutationFn: () => apiFetch("/notifications", { method: "PATCH" }),
+    mutationFn: () =>
+      apiFetch("/notifications", {
+        method: "PATCH",
+        body: { ids: (notifications ?? []).filter((n) => !n.read).map((n) => n._id) },
+      }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
@@ -80,7 +88,7 @@ export function NotificationBell() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={markAllRead.isPending}
+                  disabled={markAllRead.isPending || !notifications}
                   onClick={() => markAllRead.mutate()}
                 >
                   {markAllRead.isPending ? (
@@ -106,7 +114,7 @@ export function NotificationBell() {
                 <ul>
                   {notifications.map((n) => (
                     <li
-                      key={n.id}
+                      key={n._id}
                       className="flex gap-3 border-b px-4 py-3 last:border-b-0"
                     >
                       <span
