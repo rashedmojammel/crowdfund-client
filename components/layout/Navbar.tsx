@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useSession } from "@/lib/auth-client";
+import { formatCredits } from "@/lib/format";
 import { cn, FOCUS_RING } from "@/lib/utils";
 
 const initials = (name: string) =>
@@ -69,7 +70,7 @@ export function Navbar() {
                 variant="outline"
                 className="hidden border-[var(--fs-success)]/40 text-[var(--fs-success)] sm:inline-flex"
               >
-                {user.credits.toLocaleString("en-US")} credits
+                {formatCredits(user.credits)}
               </Badge>
               <Button asChild size="sm">
                 <Link href="/dashboard">Dashboard</Link>
