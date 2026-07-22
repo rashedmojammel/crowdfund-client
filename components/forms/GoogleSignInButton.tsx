@@ -1,24 +1,9 @@
 "use client";
 
-// TODO: replace with authClient.signIn.social({ provider: "google" }) once
-// BetterAuth is wired up. In mock mode this signs in a fixed demo Google
-// account, registering it on first use.
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ApiError, apiFetch } from "@/lib/api-client";
-import { useSessionStore } from "@/lib/store";
-import type { AuthResponse } from "@/types";
-
-const DEMO_GOOGLE_USER = {
-  name: "Tahsin Ahmed",
-  email: "tahsin.ahmed.demo@gmail.com",
-  password: "GoogleMock@1234",
-  role: "supporter" as const,
-  image: "https://i.pravatar.cc/150?u=tahsin.ahmed.demo@gmail.com",
-};
+import { authClient } from "@/lib/auth-client";
 
 function GoogleLogo() {
   return (
@@ -44,37 +29,22 @@ function GoogleLogo() {
 }
 
 export function GoogleSignInButton() {
-  const router = useRouter();
-  const setSession = useSessionStore((s) => s.setSession);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleClick = async () => {
     setError(null);
     setLoading(true);
-    try {
-      let auth: AuthResponse;
-      try {
-        auth = await apiFetch<AuthResponse>("/auth/sign-in", {
-          method: "POST",
-          body: { email: DEMO_GOOGLE_USER.email, password: DEMO_GOOGLE_USER.password },
-        });
-      } catch (err) {
-        // First Google sign-in on a fresh mock DB — register the demo account.
-        if (err instanceof ApiError && err.status === 401) {
-          auth = await apiFetch<AuthResponse>("/auth/sign-up", {
-            method: "POST",
-            body: DEMO_GOOGLE_USER,
-          });
-        } else {
-          throw err;
-        }
-      }
-      setSession(auth.user, auth.token);
-      await apiFetch("/auth/grant-signup-bonus", { method: "POST" });
-      router.push("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed");
+    // Redirects to Google and back to /dashboard — new accounts default to
+    // the "supporter" role (see lib/auth.ts) and get their signup bonus from
+    // the safety-net check in app/dashboard/layout.tsx, since there's no
+    // in-page callback to hook after an OAuth redirect completes.
+    const { error: signInError } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+    });
+    if (signInError) {
+      setError(signInError.message ?? "Google sign-in failed");
       setLoading(false);
     }
   };

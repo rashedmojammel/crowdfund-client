@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { useSessionStore } from "@/lib/store";
+import { useSession } from "@/lib/auth-client";
 import { cn, FOCUS_RING } from "@/lib/utils";
 
 const initials = (name: string) =>
@@ -19,12 +19,12 @@ const initials = (name: string) =>
 
 /**
  * Role-aware top navigation. The auth area renders a fixed-size skeleton
- * until the persisted session hydrates — no layout shift, and no SSR/client
- * hydration mismatch from reading localStorage.
+ * while the BetterAuth session is resolving — no layout shift, and no
+ * flash between "logged out" and "logged in" while that resolves.
  */
 export function Navbar() {
-  const user = useSessionStore((s) => s.user);
-  const hasHydrated = useSessionStore((s) => s.hasHydrated);
+  const { data, isPending } = useSession();
+  const user = data?.user;
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
@@ -61,7 +61,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          {!hasHydrated ? (
+          {isPending ? (
             <Skeleton className="h-9 w-40 rounded-lg" />
           ) : user ? (
             <>
@@ -75,7 +75,7 @@ export function Navbar() {
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
               <Avatar aria-label={user.name}>
-                <AvatarImage src={user.image} alt="" />
+                <AvatarImage src={user.image ?? undefined} alt="" />
                 <AvatarFallback>{initials(user.name)}</AvatarFallback>
               </Avatar>
             </>

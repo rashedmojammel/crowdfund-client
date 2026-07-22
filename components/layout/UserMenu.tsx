@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { House, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDismissable } from "@/hooks/useDismissable";
+import { authClient } from "@/lib/auth-client";
 import { useSessionStore } from "@/lib/store";
 import { cn, FOCUS_RING } from "@/lib/utils";
 
@@ -23,7 +24,6 @@ export function UserMenu() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const user = useSessionStore((s) => s.user);
-  const clearSession = useSessionStore((s) => s.clearSession);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
@@ -32,8 +32,8 @@ export function UserMenu() {
 
   if (!user) return null;
 
-  const handleLogout = () => {
-    clearSession();
+  const handleLogout = async () => {
+    await authClient.signOut();
     queryClient.clear(); // drop the previous user's cached data
     router.replace("/login");
   };

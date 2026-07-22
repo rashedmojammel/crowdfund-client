@@ -9,13 +9,15 @@ import { UserMenu } from "@/components/layout/UserMenu";
 import { RoleBadge } from "@/components/dashboard/RoleBadge";
 import { useCommandPaletteStore } from "@/lib/command-palette-store";
 import { formatNumber } from "@/lib/format";
-import { useSessionStore } from "@/lib/store";
+import { useSession } from "@/lib/auth-client";
 import { cn, FOCUS_RING } from "@/lib/utils";
+import type { UserRole } from "@/types";
 
 /** Available credits + notification bell + account menu, on every dashboard page. */
 export function DashboardTopBar() {
-  const user = useSessionStore((s) => s.user);
+  const { data } = useSession();
   const setPaletteOpen = useCommandPaletteStore((s) => s.setOpen);
+  const user = data?.user;
   if (!user) return null;
 
   return (
@@ -24,7 +26,7 @@ export function DashboardTopBar() {
         <div className="flex items-center gap-3">
           <MobileNav />
           <span className="font-semibold">Dashboard</span>
-          <RoleBadge role={user.role} />
+          <RoleBadge role={user.role as UserRole} />
         </div>
 
         <div className="flex items-center gap-3">

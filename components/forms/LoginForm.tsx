@@ -10,14 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pressable } from "@/components/animations/Pressable";
 import { FormField } from "@/components/forms/FormField";
-import { apiFetch } from "@/lib/api-client";
-import { useSessionStore } from "@/lib/store";
+import { authClient } from "@/lib/auth-client";
 import { loginSchema, type LoginInput } from "@/lib/validators";
-import type { AuthResponse } from "@/types";
 
 export function LoginForm() {
   const router = useRouter();
-  const setSession = useSessionStore((s) => s.setSession);
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -31,16 +28,12 @@ export function LoginForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
-    try {
-      const { user, token } = await apiFetch<AuthResponse>("/auth/sign-in", {
-        method: "POST",
-        body: values,
-      });
-      setSession(user, token);
-      router.push("/dashboard");
-    } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Login failed — try again");
+    const { error } = await authClient.signIn.email(values);
+    if (error) {
+      setFormError(error.message ?? "Login failed — try again");
+      return;
     }
+    router.push("/dashboard");
   });
 
   return (

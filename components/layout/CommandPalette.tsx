@@ -15,6 +15,7 @@ import {
 import { getDashboardNav } from "@/components/layout/dashboard-nav";
 import { useCommandPaletteStore } from "@/lib/command-palette-store";
 import { useTheme } from "@/hooks/useTheme";
+import { authClient } from "@/lib/auth-client";
 import { useSessionStore } from "@/lib/store";
 
 /**
@@ -24,7 +25,6 @@ import { useSessionStore } from "@/lib/store";
 export function CommandPalette() {
   const router = useRouter();
   const user = useSessionStore((s) => s.user);
-  const clearSession = useSessionStore((s) => s.clearSession);
   const { theme, toggleTheme } = useTheme();
   const open = useCommandPaletteStore((s) => s.open);
   const setOpen = useCommandPaletteStore((s) => s.setOpen);
@@ -82,8 +82,7 @@ export function CommandPalette() {
           <CommandItem
             onSelect={() => {
               setOpen(false);
-              clearSession();
-              router.replace("/login");
+              authClient.signOut().then(() => router.replace("/login"));
             }}
           >
             <LogOut aria-hidden="true" />

@@ -19,13 +19,12 @@ import { Pressable } from "@/components/animations/Pressable";
 import { FormField } from "@/components/forms/FormField";
 import { ImageUploader } from "@/components/forms/ImageUploader";
 import { apiFetch } from "@/lib/api-client";
-import { useSessionStore } from "@/lib/store";
+import { authClient, useSession } from "@/lib/auth-client";
 import { registerSchema, type RegisterInput } from "@/lib/validators";
-import type { AuthResponse } from "@/types";
 
 export function RegisterForm() {
   const router = useRouter();
-  const setSession = useSessionStore((s) => s.setSession);
+  const { refetch: refetchSession } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -39,19 +38,30 @@ export function RegisterForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
-    try {
-      const { user, token } = await apiFetch<AuthResponse>("/auth/sign-up", {
-        method: "POST",
-        body: { ...values, image: values.image || undefined },
-      });
-      // Session must exist before the bonus call — apiFetch reads it for auth.
-      setSession(user, token);
-      // Server grants 50 (supporter) / 20 (creator) exactly once; idempotent.
-      await apiFetch("/auth/grant-signup-bonus", { method: "POST" });
-      router.push("/dashboard");
-    } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Registration failed — try again");
+    const { error } = await authClient.signUp.email({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      role: values.role,
+      image: values.image || undefined,
+    });
+    if (error) {
+      setFormError(error.message ?? "Registration failed — try again");
+      return;
     }
+    try {
+      // Server grants 50 (supporter) / 20 (creator) exactly once; idempotent.
+      // Also retried from the dashboard layout in case this call races the
+      // session cookie landing (e.g. right after Google OAuth).
+      await apiFetch("/auth/grant-signup-bonus", { method: "POST" });
+      // useSession() caches in memory — the bonus call went through a plain
+      // fetch, not authClient, so the cached session still shows 0 credits
+      // until this refetch picks up the server-side change.
+      await refetchSession();
+    } catch {
+      // Non-fatal — the dashboard layout retries this once the session loads.
+    }
+    router.push("/dashboard");
   });
 
   return (
