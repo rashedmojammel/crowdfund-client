@@ -5,11 +5,11 @@ import { Label } from "@gravity-ui/uikit";
 import { CircleDollar } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { formatCredits, formatDate, formatUsd } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
-import type { Withdrawal } from "@/types";
+import type { Paginated, Withdrawal } from "@/types";
 
 const columns: Array<DataTableColumn<Withdrawal>> = [
   {
@@ -31,14 +31,14 @@ const columns: Array<DataTableColumn<Withdrawal>> = [
     key: "usd",
     title: "Payout",
     align: "right",
-    render: (row) => formatUsd(row.amountUsd),
+    render: (row) => formatUsd(row.amount),
   },
   {
     key: "method",
     title: "Method",
     render: (row) => (
       <div>
-        <p>{row.paymentSystem}</p>
+        <p className="capitalize">{row.paymentSystem}</p>
         <p className="font-mono text-xs opacity-60">{row.accountNumber}</p>
       </div>
     ),
@@ -47,8 +47,8 @@ const columns: Array<DataTableColumn<Withdrawal>> = [
     key: "status",
     title: "Status",
     render: (row) => (
-      <Label theme={row.status === "paid" ? "success" : "warning"}>
-        {row.status === "paid" ? "Paid" : "Pending"}
+      <Label theme={row.status === "approved" ? "success" : "warning"}>
+        {row.status === "approved" ? "Paid" : "Pending"}
       </Label>
     ),
   },
@@ -59,7 +59,8 @@ export function WithdrawalHistoryTable() {
 
   const { data, isPending } = useQuery({
     queryKey: ["withdrawals", "mine", user?.email],
-    queryFn: () => apiFetch<Withdrawal[]>("/withdrawals?mine=true"),
+    // limit=50 approximates "all" — this table has no pagination control.
+    queryFn: () => apiFetch<Paginated<Withdrawal>>("/withdrawals?mine=true&limit=50"),
     enabled: Boolean(user),
   });
 
@@ -70,8 +71,8 @@ export function WithdrawalHistoryTable() {
   return (
     <DataTable
       columns={columns}
-      rows={data}
-      rowKey={(row) => row.id}
+      rows={data.items}
+      rowKey={(row) => row._id}
       emptyState={
         <EmptyState
           icon={CircleDollar}

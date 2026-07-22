@@ -13,22 +13,24 @@ import { apiFetch } from "@/lib/api-client";
 import { formatUsd } from "@/lib/format";
 import { useSessionStore } from "@/lib/store";
 import { CREDITS_PER_USD_WITHDRAW } from "@/lib/utils";
-import type { CreatorStats, Withdrawal } from "@/types";
+import type { CreatorStats, Paginated, Withdrawal } from "@/types";
 
 export default function WithdrawalsPage() {
   const user = useSessionStore((s) => s.user);
 
-  const { data: stats } = useQuery({
+  const { data: statsData } = useQuery({
     queryKey: ["stats", "creator", user?.email],
-    queryFn: () => apiFetch<CreatorStats>("/stats/creator"),
+    queryFn: () => apiFetch<{ stats: CreatorStats }>("/stats/creator"),
     enabled: Boolean(user),
   });
+  const stats = statsData?.stats;
 
-  const { data: withdrawals } = useQuery({
+  const { data: withdrawalsData } = useQuery({
     queryKey: ["withdrawals", "mine", user?.email],
-    queryFn: () => apiFetch<Withdrawal[]>("/withdrawals?mine=true"),
+    queryFn: () => apiFetch<Paginated<Withdrawal>>("/withdrawals?mine=true&limit=50"),
     enabled: Boolean(user),
   });
+  const withdrawals = withdrawalsData?.items;
 
   if (!user) return null;
 

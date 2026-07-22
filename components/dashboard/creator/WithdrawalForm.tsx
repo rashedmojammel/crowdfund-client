@@ -23,7 +23,13 @@ import { CREDITS_PER_USD_WITHDRAW, MIN_WITHDRAWAL_CREDITS } from "@/lib/utils";
 import { withdrawalSchema, type WithdrawalInput } from "@/lib/validators";
 import type { Withdrawal } from "@/types";
 
-const PAYOUT_METHODS = ["bKash", "Nagad", "Bank Transfer", "PayPal"] as const;
+// Matches PAYMENT_SYSTEMS on the real server exactly.
+const PAYOUT_METHODS = [
+  { value: "bkash", label: "bKash" },
+  { value: "nagad", label: "Nagad" },
+  { value: "rocket", label: "Rocket" },
+  { value: "bank", label: "Bank Transfer" },
+] as const;
 
 interface WithdrawalFormProps {
   /** Raised credits not yet requested for withdrawal. */
@@ -43,7 +49,7 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
     formState: { isSubmitting },
   } = useForm<WithdrawalInput>({
     resolver: zodResolver(withdrawalSchema),
-    defaultValues: { credits: "", paymentSystem: "bKash", accountNumber: "" },
+    defaultValues: { credits: "", paymentSystem: "bkash", accountNumber: "" },
   });
 
   // Live USD conversion under the credits input: 20 credits = $1.
@@ -77,7 +83,7 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
       return;
     }
     try {
-      const withdrawal = await apiFetch<Withdrawal>("/withdrawals", {
+      const { withdrawal } = await apiFetch<{ withdrawal: Withdrawal }>("/withdrawals", {
         method: "POST",
         body: { ...values, credits },
       });
@@ -97,8 +103,11 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
             <CircleCheck />
             <AlertTitle>Withdrawal requested</AlertTitle>
             <AlertDescription>
-              {formatCredits(submitted.credits)} ({formatUsd(submitted.amountUsd)}) queued for
-              payout via {submitted.paymentSystem}. An admin will mark it paid.
+              {formatCredits(submitted.credits)} ({formatUsd(submitted.amount)}) queued for
+              payout via{" "}
+              {PAYOUT_METHODS.find((m) => m.value === submitted.paymentSystem)?.label ??
+                submitted.paymentSystem}
+              . An admin will mark it paid.
             </AlertDescription>
           </Alert>
         </div>
@@ -154,8 +163,8 @@ export function WithdrawalForm({ availableCredits }: WithdrawalFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {PAYOUT_METHODS.map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {m}
+                    <SelectItem key={m.value} value={m.value}>
+                      {m.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
