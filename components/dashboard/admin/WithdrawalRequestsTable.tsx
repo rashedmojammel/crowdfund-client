@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Label } from "@gravity-ui/uikit";
+import { Alert, Button, Label } from "@gravity-ui/uikit";
 import { CircleDollar } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -17,7 +17,7 @@ export function WithdrawalRequestsTable() {
   const queryClient = useQueryClient();
   const [paying, setPaying] = useState<Withdrawal | null>(null);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["withdrawals", "admin"],
     // limit=50 approximates "all" — this table has no pagination control.
     // Real GET /withdrawals (no ?mine) is already scoped to status=pending
@@ -94,6 +94,17 @@ export function WithdrawalRequestsTable() {
         ) : null,
     },
   ];
+
+  if (isError) {
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load withdrawal requests"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending || !data) {
     return <Skeleton className="h-64 w-full rounded-xl" />;
