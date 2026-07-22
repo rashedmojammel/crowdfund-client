@@ -34,6 +34,7 @@ export function ManageCampaignsTable() {
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       setDeleting(null);
+      toast.success("Campaign deleted.");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Couldn't delete this campaign");
