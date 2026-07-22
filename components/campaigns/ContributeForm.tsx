@@ -56,6 +56,10 @@ export function ContributeForm({ campaign }: ContributeFormProps) {
       reset();
       queryClient.invalidateQueries({ queryKey: ["campaign", campaign._id] });
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+      // Otherwise My Contributions and the supporter stats cards keep
+      // showing pre-contribution data until an unrelated refetch happens.
+      queryClient.invalidateQueries({ queryKey: ["contributions"] });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
     },
   });
 
