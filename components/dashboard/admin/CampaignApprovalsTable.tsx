@@ -12,7 +12,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import { isRenderableCampaign } from "@/lib/campaign-guards";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatCredits, formatDate } from "@/lib/format";
 import type { Campaign } from "@/types";
 
 /** Campaigns awaiting admin review, with Approve / Reject actions. */
@@ -102,7 +102,7 @@ export function CampaignApprovalsTable() {
       key: "goal",
       title: "Goal",
       align: "right",
-      render: (row) => `${formatNumber(row.fundingGoal)} credits`,
+      render: (row) => formatCredits(row.fundingGoal),
     },
     {
       key: "deadline",
