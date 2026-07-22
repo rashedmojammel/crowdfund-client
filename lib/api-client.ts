@@ -6,6 +6,8 @@
 // (list endpoints: { items|campaigns|notifications|reports, total, page,
 // limit }; single items: a named key). No mock layer left in this file.
 
+import { authClient } from "@/lib/auth-client";
+
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -59,6 +61,16 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
         ? json.message
         : `Request to ${path} failed`;
     throw new ApiError(message, res.status);
+  }
+
+  // Mutations can change the caller's own credits or role (contribute,
+  // purchase, withdraw, admin actions) via a plain fetch that BetterAuth's
+  // client never sees — nudge its session atom to refetch so every
+  // useSession() consumer (navbar/topbar credit badges, wallet balances,
+  // the lib/store.ts mirror via SessionSync) picks up the fresh value
+  // instead of showing a stale one until the next focus/poll refresh.
+  if (method !== "GET") {
+    authClient.$store.notify("$sessionSignal");
   }
 
   return json as T;
