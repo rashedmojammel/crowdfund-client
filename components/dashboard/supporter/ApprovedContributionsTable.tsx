@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@gravity-ui/uikit";
+import { Alert, Button } from "@gravity-ui/uikit";
 import { Heart } from "@gravity-ui/icons";
 import { DataTable, type DataTableColumn } from "@/components/dashboard/DataTable";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -51,13 +51,27 @@ const columns: Array<DataTableColumn<Contribution>> = [
 export function ApprovedContributionsTable() {
   const user = useSessionStore((s) => s.user);
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["contributions", "mine", user?.email, "all"],
     queryFn: () => apiFetch<Paginated<Contribution>>("/contributions?mine=true&page=1&limit=50"),
     enabled: Boolean(user),
   });
   // limit=50 approximates "all" since the real endpoint always paginates
   // and this table has no pagination control of its own.
+
+  if (isError) {
+    // Not just a nicer message — without this, a failed fetch renders the
+    // "no contributions yet" empty state (data is undefined → approved=[]),
+    // which looks like a real empty account instead of a broken request.
+    return (
+      <Alert
+        theme="danger"
+        title="Couldn't load approved contributions"
+        message="Something went wrong while fetching this."
+        actions={<Alert.Action onClick={() => refetch()}>Try again</Alert.Action>}
+      />
+    );
+  }
 
   if (isPending) {
     return <Skeleton className="h-48 w-full rounded-xl" />;
