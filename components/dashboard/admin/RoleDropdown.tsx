@@ -33,6 +33,7 @@ export function RoleDropdown({ user }: RoleDropdownProps) {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Role updated.");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Couldn't change this user's role");

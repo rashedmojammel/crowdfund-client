@@ -32,6 +32,7 @@ export function ManageUsersTable() {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       setDeleting(null);
+      toast.success("User removed.");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Couldn't delete this user");
