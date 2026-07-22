@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { CircleCheck, Flag, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,9 +65,13 @@ export function ReportCampaignButton({ campaign }: ReportCampaignButtonProps) {
     onSuccess: () => {
       setSubmitted(true);
       reset();
+      toast.success("Report submitted. Our team will review it.");
     },
-    onError: (err) =>
-      setFormError(err instanceof Error ? err.message : "Couldn't file the report"),
+    onError: (err) => {
+      const message = err instanceof Error ? err.message : "Couldn't file the report";
+      setFormError(message);
+      toast.error(message);
+    },
   });
 
   // Creators don't report their own campaign.
