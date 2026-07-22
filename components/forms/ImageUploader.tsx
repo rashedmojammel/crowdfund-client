@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,10 +69,14 @@ export function ImageUploader({
     setUploadError(null);
     setUploading(true);
     onUploadingChange?.(true);
+    const toastId = toast.loading("Uploading image…");
     try {
       onChange(await uploadToImgBB(file));
+      toast.success("Image uploaded", { id: toastId });
     } catch (error) {
-      setUploadError(error instanceof Error ? error.message : "Image upload failed");
+      const message = error instanceof Error ? error.message : "Image upload failed";
+      setUploadError(message);
+      toast.error(message, { id: toastId });
     } finally {
       setUploading(false);
       onUploadingChange?.(false);
