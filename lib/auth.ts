@@ -14,10 +14,24 @@ import { MongoClient } from "mongodb";
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI!);
 
+// Resolve the app's public URL. In production this MUST be the deployed client
+// domain (set BETTER_AUTH_URL in Vercel). Falls back to localhost for dev.
+const baseURL =
+  process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
+
+// Every origin BetterAuth will accept auth requests from. Missing/undefined
+// entries are filtered out so an unset env var never injects `undefined`.
+const trustedOrigins = [
+  "http://localhost:3000",
+  process.env.BETTER_AUTH_URL,           // deployed client URL
+  process.env.NEXT_PUBLIC_APP_URL,       // optional extra/custom domain
+].filter((o): o is string => Boolean(o));
+
 export const auth = betterAuth({
   database: mongodbAdapter(mongoClient.db()),
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL,
+  trustedOrigins,
   emailAndPassword: {
     enabled: true,
   },
